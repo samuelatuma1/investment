@@ -1,10 +1,14 @@
 import {
     Link
-} from "react-router-dom"
+} from "react-router-dom";
+
 import {useEffect, useRef} from "react";
 // Style sheet
 import './css/navigation.css';
 
+// Icons
+import {FaHamburger} from "react-icons/fa";
+import {AiFillHome} from "react-icons/ai"
 
 /**
  * @desc gives HTMLElement in navBar with className matching whatever value passed as active in props a class of active
@@ -82,9 +86,11 @@ export default function NavigationBar(props){
     return (
         <nav ref={navBar}>
             <section className="home">
-            <li>Home</li>
+            <li>
+                <AiFillHome />
+            </li>
             <i onClick={toggleDisplay}>
-                Show Menu
+                <FaHamburger />
             </i> 
             </section>
             
