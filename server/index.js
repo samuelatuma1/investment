@@ -17,15 +17,14 @@ app.use(cookieParser())
 app.use(express.urlencoded({extended: true}))
 app.use(express.json())
 
-
-
-
-
-
-// CORS
-app.use(cors({
-    origin: "http://localhost:3000"
-}))
+// Use cors to allow react
+const corsOptions = {
+    origin: 'http://localhost:3000',
+    methods: ['GET', "POST", "PUT", "DELETE"],
+    credentials: true
+}
+app.use(cors(corsOptions))
+app.options("*", cors(corsOptions))
 
 // Routes
 const {authRoute} = require("./routes/auth.route.js")
