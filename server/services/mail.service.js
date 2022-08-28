@@ -39,6 +39,7 @@ class Mail{
     sendVerificationMail = async (req, savedUser) => {
        
         try{
+
             const to = savedUser.email
             const fullName = savedUser.fullName || "there"
 
@@ -65,8 +66,8 @@ class Mail{
                 const sendMail = await this.sendMail(to, "Verify Email", verificationMail)
                 return sendMail
         } catch(err){
-            console.log(err)
-            throw new Error(err)
+            // console.log(err)
+            throw new Error("Email verification failed")
         }
     }
 

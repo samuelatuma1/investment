@@ -24,6 +24,11 @@ nav li{
     max-height: 100vh;
 
 }
+nav i{
+    cursor: pointer;
+    
+}
+
 .toggleDisplay li{
     min-height: 40px;
     display: flex;

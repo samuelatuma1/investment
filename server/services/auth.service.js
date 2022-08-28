@@ -60,7 +60,15 @@ class AuthService{
         }
         return user
     }
-
+    /**
+     * 
+     * @param {object} obj : The matching condition
+     * @desc Deletes the first document that matches conditions from db
+     */
+    deleteOne = async (obj) => {
+        const deleteCount = await User.deleteOne(obj)
+        return deleteCount
+    }
 }
 
 module.exports = {AuthService}

@@ -7,21 +7,42 @@ class Auth{
         this.authService = authService
         this.mailService = mailService
     }
+
+    /**
+     * @desc Signs up a user
+     * @METHOD POST /auth/signup
+     * @param req {<
+     *              reqParams={},
+     *              resBody={},
+     *              reqBody={
+     *                  fullName: string,
+     *                  email: email(String), password: string
+     *                  retypePassword: string
+     * }
+     *  >}
+     */
     signup = async (req, res) => {
         try{
             const formErrors = validationResult(req).errors
             if(formErrors.length > 0){
-                return res.status(403).json({formErrors})
+                return res.status(200).json({formErrors})
             }
             console.log("res.body", req.body)
             const savedUser = await this.authService.saveUser(req)
 
             // Send Verification Mail
-            const verificationMail = await this.mailService.sendVerificationMail(req, savedUser)
+            let verificationMail;
+            try{
+                verificationMail = await this.mailService.sendVerificationMail(req, savedUser)
+            } catch(err){
+                const removedMail = await this.authService.deleteOne({email: req.body.email})
+                    console.log({removedMail})
+                    return res.sendStatus(400)
+            }
             
             res.status(201).json({savedUser: savedUser.toObject()})
         } catch(err){
-            console.dir(err)
+            console.log(err)
             return res.status(403).json({error: "user with email already exists"})
         }
     }
