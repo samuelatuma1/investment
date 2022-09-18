@@ -39,7 +39,6 @@ class Mail{
     sendVerificationMail = async (req, savedUser) => {
        
         try{
-
             const to = savedUser.email
             const fullName = savedUser.fullName || "there"
 

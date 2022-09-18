@@ -13,7 +13,7 @@ const {Mail} = require("../services/mail.service.js")
 const mailServiceProvider = process.env.service
 const email_username = process.env.email_username
 const email_password = process.env.email_password
-console.log({email_password})
+// console.log({email_password})
 const auth = new Auth(new AuthService(), 
     new Mail(mailServiceProvider, email_username, email_password))
 

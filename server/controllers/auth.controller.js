@@ -59,6 +59,18 @@ class Auth{
         }
     }
 
+     /**
+     * @desc Signs up a user
+     * @METHOD POST /auth/signin
+     * @param req {<
+     *              reqParams={},
+     *              resBody={},
+     *              reqBody={
+     *                  email: email(String),       
+     *                  password: string
+     * }
+     *  >}
+     */
     signin = async (req, res) => {
         try{
             const {email, password} = req.body
@@ -79,7 +91,7 @@ class Auth{
             return res.status(200).json({email, _id, token: user.token})
         } catch(err){
             console.log(err)
-            return res.status(403).json({error: "Authentication failed"})
+            return res.status(400).json({error: "Authentication failed"})
         }
     }
 }

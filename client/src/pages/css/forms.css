@@ -3,14 +3,19 @@
 .form {
     width : 90%;
     padding : 20px;
-    border: 1px solid rgb(245, 240, 240);
-    border-radius : 10px;
-    margin : auto;
     transition : 0.5s;
+    margin : auto;
     margin: 20px auto;
     
 }
-.form:hover{
+.auth{
+    border: 1px solid rgb(245, 240, 240);
+    border-radius : 10px;
+    transition : 0.5s;
+    margin: 10px;
+
+}
+.auth:hover{
     box-shadow : 0px 0px 10px 2px rgb(194, 192, 192);
 }
 .form .desc h1{
@@ -75,11 +80,30 @@ img{
     
 }
 
+
 .formSuccess{
     color : var(--success, teal);
 }
 @media screen and (min-width: 600px){
-    .form{
-        max-width: 600px;
+    .auth {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+    }
+    .auth .form{
+        max-width: 60%;
+    }
+
+    .auth .authImg{
+        max-width: 40%;
+        display: block;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .authImg img{
+        display: block;
+        width: 99%;
+        object-fit: cover;
     }
 }

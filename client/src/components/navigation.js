@@ -8,7 +8,7 @@ import './css/navigation.css';
 
 // Icons
 import {FaHamburger} from "react-icons/fa";
-import {AiFillHome} from "react-icons/ai"
+import {AiFillHome} from "react-icons/ai";
 
 /**
  * @desc gives HTMLElement in navBar with className matching whatever value passed as active in props a class of active
@@ -100,7 +100,7 @@ export default function NavigationBar(props){
                 <li>Upload House</li>
             </section>
 
-            <section className='auth'>
+            <section className='authentication'>
                 <li className='signin'>
                     {/* <Link to="/signin"> */}
                         Sign In

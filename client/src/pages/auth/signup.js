@@ -1,5 +1,6 @@
 // Styles
 import "../css/forms.css";
+import SignUpImg from "./static/signup.png";
 
 // Navigation
 import {
@@ -140,7 +141,10 @@ const SignUpForm = (props) => {
 
     }
     return (
+        <div className="auth">
+        
         <form className="form" onSubmit={submitForm}>
+            
             <div className="desc">
                 <h1>Sign up here</h1>
             </div>
@@ -215,11 +219,17 @@ const SignUpForm = (props) => {
             <button>Sign up</button>
             <p>
                 Already have an account?
-                <Link to="/auth/signup">
+                <Link to="/auth/signin">
                     Sign in here
                 </Link>
             </p>
+            
         </form>
+
+        <div className="authImg">
+            <img src={SignUpImg} alt="sign up" />
+        </div>
+    </div>
     );
 }
 const Signup = props => {
