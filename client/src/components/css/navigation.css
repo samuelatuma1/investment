@@ -45,6 +45,10 @@ nav i{
     display: none;
 }
 
+nav .navAnchor{
+    color: inherit;
+    text-decoration: none;
+}
 .active.active{
     /* font-size:; */
     font-weight: bolder;
@@ -68,7 +72,7 @@ nav i{
         align-items: center;
 
     }
-    .toggleDisplay .houseNav{
+    .toggleDisplay .mainNav{
         display: flex;
         width: 80%;
         align-items: center;

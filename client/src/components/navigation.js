@@ -95,16 +95,20 @@ export default function NavigationBar(props){
             </section>
             
             <ul className="toggleDisplay hide" ref={toggleNavRef}>
-            <section className='houseNav'>
+            <section className='mainNav'>
                 <li>Upload House</li>
-                <li>Upload House</li>
+                <li >
+                    <Link to="/acct/home" className="navAnchor UserAccountHomePage">
+                        Account 
+                    </Link>
+                </li>
             </section>
 
             <section className='authentication'>
                 <li className='signin'>
-                    {/* <Link to="/signin"> */}
+                    <Link to="/auth/signin" className="navAnchor signin"> 
                         Sign In
-                    {/* </Link> */}
+                     </Link> 
                 </li>
                 {/* <li className='signup'>Sign Up</li> */}
             </section>

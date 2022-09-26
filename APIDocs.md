@@ -17,3 +17,5 @@ email_password = "awwhetnpkykycupqmars"
 
 
 #####################################
+
+<!-- For protected Route, userId can be accessed from req.userId -->

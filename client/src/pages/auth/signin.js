@@ -7,11 +7,31 @@ import {Link} from "react-router-dom";
 import {useState, useEffect} from "react";
 import  NavigationBar from "../../components/navigation.js";
 
+// Get Global User
+import {UserState} from "../../globalStore/atoms.js";
+// Import global management tool
+import {
+    useSetRecoilState
+} from "recoil";
+
+// router
+import {useNavigate, useParams} from "react-router-dom";
+
+/**
+ * @route /auth/signin?next=string
+ * @param {*} props 
+ * @returns 
+ */
 function SignInForm(props){
+    const params /*: Object ({}) */= useParams();
+    const navigate /*: NavigateObject  */ = useNavigate();
+
     const [signinForm, setSigninForm]  = useState({
         email : "",
         password: ""
     });
+    // Global User state
+    const setGlobalUser = useSetRecoilState(UserState);
 
     function updateForm(e){
         setSigninForm(prevData => ({...prevData, [e.target.name]: e.target.value}))        
@@ -34,6 +54,13 @@ function SignInForm(props){
             // Get data 
             const signInRes = await signInReq.json()
             alert(JSON.stringify(signInRes))
+            setGlobalUser(prevUser => signInRes);
+
+            // If a next parameter is provided, navigate to next(default /acct/home)
+            const navigateTo = params.next || "/acct/home";
+            navigate(navigateTo);
+        } else{
+            alert("There was an error verifying user. Please try again.")
         }
     }
     return (<div className="auth">
@@ -78,7 +105,7 @@ function SignInForm(props){
 const Signin = props => {
     return (
         <>
-            <NavigationBar />
+            <NavigationBar active='signin'/>
             <SignInForm />
         </>
     );

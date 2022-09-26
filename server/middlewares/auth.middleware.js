@@ -13,4 +13,6 @@ const signUpValidator = [
     }).withMessage("Passwords must match")
 ]
 
+
+
 module.exports = {signUpValidator}

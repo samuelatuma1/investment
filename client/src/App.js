@@ -7,25 +7,31 @@ import {
 } from "react-router-dom";
 
 // Store Manager
-
+import Recoil from "recoil";
 // Fonts
 import "@fontsource/montserrat";
 // Pages
 import Signup from "./pages/auth/signup";
 import Signin from "./pages/auth/signin";
 
+// User Pages
+import UserAccountHomePage from "./pages/acct/userAcctHomePage.js";
+
 function App() {
   return (
-    <div className="App">
-      <BrowserRouter>
-        <Routes>
-          <Route path="/auth/signup" element={<Signup />} />
-        </Routes>
-        <Routes>
-          <Route path="/auth/signin" element={<Signin />} />
-        </Routes>
-      </BrowserRouter>
-    </div>
+    <Recoil.RecoilRoot>
+      <div className="App">
+        <BrowserRouter>
+          <Routes>
+            <Route path="/auth/signup" element={<Signup />} />
+            <Route path="/auth/signin" element={<Signin />} />
+
+            <Route path="/acct/home" element={< UserAccountHomePage/>} />
+          </Routes>
+          
+        </BrowserRouter>
+      </div>
+    </Recoil.RecoilRoot>
   );
 }
 

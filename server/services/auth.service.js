@@ -34,10 +34,10 @@ class AuthService{
     verifyEmail = async (token) => {
         try {
             // unhash token 
-            const email = JWTService.verifyToken(token, process.env.JWT_KEY)
+            const _id = JWTService.verifyToken(token, process.env.JWT_KEY)
             // Check whose email matches token
-            // Result of email is hashed as {email: emailAddress}
-            const userToVerify = await User.findOne(email)
+            // Result of _id is hashed as {email: emailAddress}
+            const userToVerify = await User.findOne(_id)
             userToVerify.isActive = true
             const savedUser = await userToVerify.save()
             return savedUser
@@ -55,7 +55,7 @@ class AuthService{
         const user = await User.findOne({email, password: hashedPassword})
         // if user is add token to data
         if(user){
-            const token = JWTService.signToken({email: user.email}, process.env.JWT_KEY)
+            const token = JWTService.signToken({_id: user._id}, process.env.JWT_KEY)
             user.token = token
         }
         return user
@@ -68,6 +68,18 @@ class AuthService{
     deleteOne = async (obj) => {
         const deleteCount = await User.deleteOne(obj)
         return deleteCount
+    }
+
+    userIsSignedIn = async (token) => {
+        try{
+            const decryptedToken /*: {_id: ObjectId...} */ = JWTService.verifyToken(token, process.env.JWT_KEY);
+        if(!decryptedToken){
+            return false;
+        }
+        return true;
+        } catch(err){
+            return false;
+        }
     }
 }
 

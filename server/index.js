@@ -27,7 +27,13 @@ app.use(cors(corsOptions))
 app.options("*", cors(corsOptions))
 
 // Routes
+    
 const {authRoute} = require("./routes/auth.route.js")
 app.use("/auth", authRoute)
 
+const {accountRoute} = require("./routes/account.route.js");
+app.use("/account", accountRoute);
+
+const {transactionRoute} = require("./routes/transaction.route.js");
+app.use("/transaction", transactionRoute);
 module.exports = {app}

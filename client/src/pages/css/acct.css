@@ -1,0 +1,61 @@
+.containerDesc {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.transaction{
+    display: grid;
+    padding: 1rem 10px;
+    border-radius: 15px;
+    grid-template-columns: 10% 40% 30% 20%;
+}
+
+.userAcctHomePage{
+    display:flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+
+}
+
+.container .toggleBtn{
+    background-color: teal;
+   
+    color: aliceblue;
+    padding: 10px;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: 1s;
+}
+.container  .toggleBtn:hover{
+    border-radius: 5px;
+    box-shadow: 0px 0px 1px 0px rgb(199, 195, 195);
+}
+
+.container{
+    padding: 10px;
+    transition: 1s;
+    width: 95%;
+    margin: 20px 0px;
+    box-shadow: 0px 0px 10px 0px rgb(210, 204, 204);
+}
+.container:hover{
+    border-radius: 15px;
+    box-shadow: 0px 0px 10px 0px rgb(176, 171, 171);
+}
+.transaction:nth-child(2n){
+    background-color: aliceblue;
+}
+
+@media screen and (min-width: 700px){
+    .container{
+        max-width: 48%;
+    }
+}
+
+@media screen and (min-width: 1200px){
+    .container{
+        max-width: 31%;
+    }
+}

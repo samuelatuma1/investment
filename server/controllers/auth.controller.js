@@ -3,13 +3,14 @@ const {validationResult} = require("express-validator")
 
 
 class Auth{
-    constructor(authService, mailService){
-        this.authService = authService
-        this.mailService = mailService
+    constructor(authService, mailService, accountService){
+        this.authService = authService;
+        this.mailService = mailService;
+        this.accountService = accountService;
     }
 
     /**
-     * @desc Signs up a user
+     * @desc Signs up a user creates account(Transaction account) for user in the process
      * @METHOD POST /auth/signup
      * @param req {<
      *              reqParams={},
@@ -30,6 +31,11 @@ class Auth{
             console.log("res.body", req.body)
             const savedUser = await this.authService.saveUser(req)
 
+            //  Create account for user in the process of creating user
+            const _id = savedUser._id;
+            const userTransactionAcct = await this.accountService.createAccount(_id);
+            console.log({userTransactionAcct});
+
             // Send Verification Mail
             let verificationMail;
             try{
@@ -47,11 +53,20 @@ class Auth{
         }
     }
 
+    /**
+     * @desc verifies mail, creates account(Transaction account) for user in the process
+     * @param {*} req 
+     * @param {*} res 
+     * @returns 
+     */
     verifyMail = async (req, res) => {
         try{
             // Get signed token
             const token = req.params.signedToken
             const validatedUser = await this.authService.verifyEmail(token)
+
+            
+
             return res.status(200).json({validatedUser})
         } catch(err){
             console.log(err)
@@ -81,17 +96,38 @@ class Auth{
             if(!user){
                 return res.status(400).json({"error": "username or password invalid"})
             }
+            console.log(user)
             if(!user.isActive){
                 return res.status(403).json({error: "account not activated"})
             }
             // User is valid, with signed token in key -> token
             res.cookie("token", user.token)
             console.log("cookies", req.cookies)
-            const {_id} = user
-            return res.status(200).json({email, _id, token: user.token})
+            const {_id /*: BsonObject */, fullName /*: String */} = user
+            return res.status(200).json({email, _id, fullName, token: user.token})
         } catch(err){
             console.log(err)
             return res.status(400).json({error: "Authentication failed"})
+        } 
+    }
+    /**
+     * @desc checks if a user is signed in using token 
+     * @METHOD GET /auth//userIsSignedIn/:token
+     * @param req {
+     *              reqParams={},
+     *              resBody={},
+     *              reqBody={}
+     }
+
+     */
+    userIsSignedIn = async (req /*: Request */, res /*: Response */) /*: json({isSignedIn: boolean}) */ => {
+        try{
+            const token /*: JWTToken */ = req.params.token;
+            const isSignedIn /*: boolean */ = await this.authService.userIsSignedIn(token);
+            return res.status(200).json({isSignedIn});
+        } catch(err){
+            console.log(err.message);
+            return res.status(200).json({isSignedIn: false});
         }
     }
 }
