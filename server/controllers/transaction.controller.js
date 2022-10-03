@@ -6,7 +6,7 @@ class TransactionController{
         this.accountService = accountService;
         this.transactionService = transactionService;
     }
-
+    
     /** 
      * @method Post /create
      * @protected (userId in req.userId)
@@ -42,6 +42,7 @@ class TransactionController{
             return res.status(500).json({error: err.message})
         }
     }
+
     /** 
      * @method get /gettransactions
      * @protected (userId in req.userId)
@@ -64,6 +65,8 @@ class TransactionController{
             return res.status(500).json({error: err.message});
         }
     }
+
+
 }
 
 module.exports = {TransactionController};

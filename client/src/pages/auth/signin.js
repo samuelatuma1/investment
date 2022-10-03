@@ -15,7 +15,7 @@ import {
 } from "recoil";
 
 // router
-import {useNavigate, useParams} from "react-router-dom";
+import {useNavigate, useParams, useSearchParams} from "react-router-dom";
 
 /**
  * @route /auth/signin?next=string
@@ -23,7 +23,7 @@ import {useNavigate, useParams} from "react-router-dom";
  * @returns 
  */
 function SignInForm(props){
-    const params /*: Object ({}) */= useParams();
+    const [params] /*: Object ({}) */= useSearchParams();
     const navigate /*: NavigateObject  */ = useNavigate();
 
     const [signinForm, setSigninForm]  = useState({
@@ -57,7 +57,8 @@ function SignInForm(props){
             setGlobalUser(prevUser => signInRes);
 
             // If a next parameter is provided, navigate to next(default /acct/home)
-            const navigateTo = params.next || "/acct/home";
+            // const navigateTo = params.next || "/acct/home";
+            const navigateTo = params.get("next");
             navigate(navigateTo);
         } else{
             alert("There was an error verifying user. Please try again.")

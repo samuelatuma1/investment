@@ -89,8 +89,7 @@ class TransactionService /*: implements ITransactionService */ {
      * 
      * @param {ObjectId} transactionId 
      * @param {ObjectId} acctId
-     * @param {Object} updateData 
-
+     * @param {Object} updateData
      */
     updateTransaction = async (transactionId /*:ObjectId */, acctId /*:ObjectId */ ,updateData /*: Object */ = {}) => {
         const transaction /*: TransactionModel | null */= await Transaction.findOne({_id: transactionId, acctId})

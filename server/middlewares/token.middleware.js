@@ -23,8 +23,8 @@ class ValidateToken{
     static validateToken = (req, res, next) =>  {
     // Check if token in header or cookies
     const header = req.headers.authorization 
-    console.log("cookies", req.cookies)
-    console.log("token middle =>", req.cookies.token)
+    // console.log("cookies", req.cookies)
+    // console.log("token middle =>", req.cookies.token)
     if(!req.cookies.token && (!header || !header.includes("Bearer"))){
         return res.status(401).json({error: 'Invalid token: Token does not exist'})
     }
@@ -40,7 +40,7 @@ class ValidateToken{
     
     try{
         const decryptedData = JWTService.verifyToken(token, jwtKey);
-        console.log({decryptedData})
+        // console.log({decryptedData})
         const ID = decryptedData['_id']
 
         // Extend request.user to include User ID

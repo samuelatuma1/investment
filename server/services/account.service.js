@@ -44,6 +44,8 @@ class AccountService /* implements IAccountService */ {
             const newAccount /*: Account */= new Account({
                 acctHolderId: userId,
             });
+            // Check if an account already exists for user;
+            
             const savedAcct = await newAccount.save();
             return savedAcct;
         }

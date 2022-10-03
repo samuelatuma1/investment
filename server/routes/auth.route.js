@@ -33,4 +33,7 @@ authRoute.route("/signin")
 
 authRoute.route("/userIsSignedIn/:token")
     .get(auth.userIsSignedIn);
+
+authRoute.route("/userIsAdmin/:token")
+    .get(auth.userIsAdmin);
 module.exports = {authRoute}

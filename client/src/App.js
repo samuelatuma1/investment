@@ -17,6 +17,9 @@ import Signin from "./pages/auth/signin";
 // User Pages
 import UserAccountHomePage from "./pages/acct/userAcctHomePage.js";
 
+// Admin Pages
+import AdminHomePage from "./pages/admin/admin.js";
+
 function App() {
   return (
     <Recoil.RecoilRoot>
@@ -27,6 +30,7 @@ function App() {
             <Route path="/auth/signin" element={<Signin />} />
 
             <Route path="/acct/home" element={< UserAccountHomePage/>} />
+            <Route path="/admin" element={<AdminHomePage />} />
           </Routes>
           
         </BrowserRouter>

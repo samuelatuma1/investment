@@ -81,6 +81,72 @@ class AuthService{
             return false;
         }
     }
+
+    /**
+     * @param {string} token
+     * @returns {boolean}
+     */
+    userIsAdmin = async (token /**: JWTToken */, ) /*: boolean */ => {
+        try{
+            const decryptedToken /*: {_id: ObjectId...} */ = JWTService.verifyToken(token, process.env.JWT_KEY);
+
+        if(!decryptedToken){
+            return false;
+        }
+
+        const {_id} /*: ObjectId */ = decryptedToken;
+        const user /*: User */ = await User.findById(_id);
+        if(user != null){
+            return user.isAdmin;
+        }
+        return false;
+        } catch(err){
+            return false;
+        }
+    }
+
+    /**
+     * 
+     * @desc checks if a user is admin given a  JWTToken
+     * @param {JWTToken} token JWTToken that would be decrypted to figure out if user is admin
+     * @returns {boolean}
+     */
+     userIsAdmin = async (token /**: JWTToken */ ) /*: boolean */ => {
+        try{
+            const decryptedToken /*: {_id: ObjectId...} */ = JWTService.verifyToken(token, process.env.JWT_KEY);
+
+        if(!decryptedToken){
+            return false;
+        }
+
+        const {_id} /*: ObjectId */ = decryptedToken;
+        const user /*: User */ = await User.findById(_id);
+        if(user != null){
+            return user.isAdmin;
+        }
+        return false;
+        } catch(err){
+            return false;
+        }
+    }
+    /**
+     * @desc checks if a user is admin given an ObjectId
+     * @param {ObjectId} userId The Id of the user
+     * @returns {boolean}
+     */
+    verifyIsAdminFromId = async (userId /**: ObjectId */, ) /*: boolean */ => {
+       
+        try{
+            const _id /*: ObjectId */ = userId;
+            const user /*: User */ = await User.findById(_id);
+            if(user != null){
+                return user.isAdmin;
+            }
+            return false;
+        } catch(err){
+            return false;
+        }
+    }
 }
 
 module.exports = {AuthService}

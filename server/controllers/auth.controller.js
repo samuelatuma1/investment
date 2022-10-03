@@ -130,6 +130,24 @@ class Auth{
             return res.status(200).json({isSignedIn: false});
         }
     }
+
+
+    /**
+     * @desc checks if a user is admin using token provided in req Params
+     * @METHOD GET /auth//userIsAdmin/:token
+     * @param req {
+     }
+     */
+     userIsAdmin = async (req /*: Request */, res /*: Response */) /*: json({isAdmin: boolean}) */ => {
+        try{
+            const token /*: JWTToken */ = req.params.token;
+            const isAdmin /*: boolean */ = await this.authService.userIsAdmin(token);
+            return res.status(200).json({isAdmin});
+        } catch(err){
+            console.log(err.message);
+            return res.status(200).json({isAdmin: false});
+        }
+    }
 }
 
 module.exports = {Auth}

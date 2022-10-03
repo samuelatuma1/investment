@@ -8,3 +8,12 @@ console.log(ts[0].amt)
 const balance /*: number */ = ts.reduce((prevT /*: number */, currT) => prevT + currT["amt"], 0);
 
 console.log(balance);
+
+
+function getMult({data /*: string */, repeat /*: number */}){
+    for (let i /*: number */ = 0; i < repeat; i++){
+        console.log(data);
+    }
+}
+
+getMult({data: "samuel", repeat: 10})
