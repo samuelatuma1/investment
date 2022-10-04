@@ -58,7 +58,7 @@ function SignInForm(props){
 
             // If a next parameter is provided, navigate to next(default /acct/home)
             // const navigateTo = params.next || "/acct/home";
-            const navigateTo = params.get("next");
+            const navigateTo = params.get("next")|| "/acct/home";
             navigate(navigateTo);
         } else{
             alert("There was an error verifying user. Please try again.")

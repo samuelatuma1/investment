@@ -39,8 +39,12 @@ class TransactionService /*: implements ITransactionService */ {
     
     createTransaction = async (AccountId/*: ObjectId */, transaction /*: Transaction */ ) => {
         try{
-            const {amount, desc, status, currency} = transaction /*: Object<string, object> */;
-            const newTransaction = new Transaction({ acctId: AccountId, amount, desc, status, currency });
+            console.log("---------------------------------------------")
+            console.log({transaction})
+            console.log("---------------------------------------------")
+            const {amount, desc, status, currency, investmentId} = transaction /*: Object<string, object> */;
+            
+            const newTransaction = new Transaction({ acctId: AccountId, amount, desc, status, currency, investmentId });
             const balanceAfterTransactionPositive = await this.balanceAfterTransactionPositive(AccountId, transaction);
 
             if(!balanceAfterTransactionPositive){
@@ -60,7 +64,7 @@ class TransactionService /*: implements ITransactionService */ {
      */
     getUserTransactions = async (acctId /*:ObjectId */) => {
         try{
-            const transactions /*: List<TransactionModel> */= await Transaction.where({acctId: acctId});
+            const transactions /*: List<TransactionModel> */= await Transaction.where({acctId: acctId}).populate("investmentId");
             return transactions;
 
         } catch(err){
@@ -91,11 +95,11 @@ class TransactionService /*: implements ITransactionService */ {
      * @param {ObjectId} acctId
      * @param {Object} updateData
      */
-    updateTransaction = async (transactionId /*:ObjectId */, acctId /*:ObjectId */ ,updateData /*: Object */ = {}) => {
-        const transaction /*: TransactionModel | null */= await Transaction.findOne({_id: transactionId, acctId})
+    updateUserTransaction = async (transactionId /*:ObjectId */,updateData /*: Object */ = {}) => {
+        const transaction /*: TransactionModel | null */= await Transaction.findOne({_id: transactionId})
         let updatedTransaction = true
         if(transaction != null){
-            await Transaction.updateOne({_id: transactionId, acctId}, updateData);  
+            await Transaction.updateOne({_id: transactionId}, updateData);  
         }
         else{
             updatedTransaction = false; 

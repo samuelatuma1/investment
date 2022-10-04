@@ -11,6 +11,11 @@ const TransactionSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    investmentId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: "Investment"
+    },
     currency: {
         type: "string",
         required: true,
