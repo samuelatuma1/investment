@@ -5,6 +5,48 @@ class ITransactionService {
      * @desc Creates a new transaction
      */
     createTransaction = async (AccountId/* ObjectId */, transaction /*: TransactionObject */ ) /*: Transaction */=> {}
+
+     /**
+     * 
+     * @param {ObjectId} acctId : -> account Id
+     * @returns {Promise<List<TransactionModel>>} for accountId
+     */
+      getUserTransactions = async (acctId /*:ObjectId */) /** List<TransactionModel> */=> {}
+    
+      /**
+     * 
+     * @param {ObjectId} acctId : -> account Id
+     * @param {enum["pending", "approved", "rejected"]} status 
+     * @returns {Promise<List<TransactionModel>>} with status matching status
+     */
+    filterUserTransactionsByStatus = async (acctId /*:ObjectId */, status /*:string */="pending") /**List<TransactionModel> */=> {}
+
+    /**
+     * 
+     * @param {ObjectId} transactionId 
+     * @param {ObjectId} acctId
+     * @param {Object} updateData
+     */
+     updateUserTransaction = async (transactionId /*:ObjectId */,
+                            updateData /*: Object */ = {}) /**void */ => {}
+
+    /**
+     * 
+     * @param {TransactionModelPatch {status?: string, ...}} transactionQuery 
+     * @returns {Promise<List<TransactionModel>>}
+     */
+     retrieveTransactions = async (transactionQuery 
+        /**: TransactionModelPatch  */) /**: Array<TransactionModel> */ => {}
+
+     /**
+     * 
+     * @param {ObjectId} acctId transaction acctId
+     * @returns {Promise<{
+      *  withdrawableTransactions: Array<TransactionModel>,
+      *  withdrawableTransactionsAmount: number
+      * }>}
+      */
+     retrieveWithdrawableTransactions = async (acctId /**ObjectId */) => {}
 }
 
 /*
@@ -62,10 +104,33 @@ class TransactionService /*: implements ITransactionService */ {
      * @param {ObjectId} acctId : -> account Id
      * @returns {List<TransactionModel>} for accountId
      */
-    getUserTransactions = async (acctId /*:ObjectId */) => {
+    getUserTransactions = async (acctId /*:ObjectId */) /** List<TransactionModel> */=> {
         try{
-            const transactions /*: List<TransactionModel> */= await Transaction.where({acctId: acctId}).populate("investmentId");
-            return transactions;
+            const transactions /*: List<TransactionModel> */= await Transaction
+                                        .where({acctId: acctId})
+                                        .populate("investmentId")
+                                        .populate("acctId");
+
+            // Get how much time has passed since invested
+            const day /**number */ = 1000 * 60 * 60 * 24;
+            const acctTransactions /** Array<TransactionModel> */ = [];
+            for(let transaction /**TransactionModel */ of transactions){
+                const transactionObject /**TransactionModel */ = transaction.toObject();
+                const timeDelta /** number */ = new Date().getTime()
+                                                - new Date(transactionObject.createdAt).getTime();
+                const daysPassedSinceTransaction /**number */= Math.floor(timeDelta / day);
+                transactionObject.days = daysPassedSinceTransaction;
+                const percent /**number */ = 0.01 * transactionObject.investmentId.yieldValue;
+                const waitPeriod = transactionObject.investmentId.waitPeriod;
+                const daysFraction /**number */ = daysPassedSinceTransaction / waitPeriod;
+                const yieldOverTime /**number */ = daysFraction * (percent);
+                const currentValue /**number */ = transactionObject.amount * (1 + yieldOverTime);
+                transactionObject.currentValue =  +currentValue.toFixed(2);;
+
+                acctTransactions.push(transactionObject);
+            }
+
+            return acctTransactions;
 
         } catch(err){
             console.log(err);
@@ -78,7 +143,7 @@ class TransactionService /*: implements ITransactionService */ {
      * @param {enum["pending", "approved", "rejected"]} status 
      * @returns {List<TransactionModel>} with status matching status
      */
-    filterUserTransactionsByStatus = async (acctId /*:ObjectId */, status /*:string */="pending") => 
+    filterUserTransactionsByStatus = async (acctId /*:ObjectId */, status /*:string */="pending") /**List<TransactionModel> */=> 
     {
         try{
             const transactions /*: List<TransactionModel> */= await Transaction.where({acctId, status});
@@ -95,17 +160,74 @@ class TransactionService /*: implements ITransactionService */ {
      * @param {ObjectId} acctId
      * @param {Object} updateData
      */
-    updateUserTransaction = async (transactionId /*:ObjectId */,updateData /*: Object */ = {}) => {
+    updateUserTransaction = async (transactionId /*:ObjectId */,updateData /*: Object */ = {}) /**boolean */ => {
         const transaction /*: TransactionModel | null */= await Transaction.findOne({_id: transactionId})
         let updatedTransaction = true
         if(transaction != null){
             await Transaction.updateOne({_id: transactionId}, updateData);  
+            
         }
         else{
             updatedTransaction = false; 
         }
         return updatedTransaction;
     }
+
+    /**
+     * 
+     * @param {TransactionModelPatch {status?: string, ...}} transactionQuery 
+     * @returns {List<TransactionModel>}
+     */
+    retrieveTransactions = async (transactionQuery /**: TransactionModelPatch  */) /**: Array<TransactionModel> */ => {
+        return await Transaction.where(transactionQuery).populate("investmentId").populate("acctId");
+    }
+    /**
+     * 
+     * @param {ObjectId} acctId transaction acctId
+     * @returns {Promise<{
+     *  withdrawableTransactions: Array<TransactionModel>,
+     *  withdrawableTransactionsAmount: number
+     * }>}
+     */
+    retrieveWithdrawableTransactions = async (acctId /**ObjectId */) => {
+        const withdrawableTransactionsStatus /** string */ = "approved"
+        const userApprovedTransactions /**Array<Transaction> */ = await Transaction.where({acctId: acctId, 
+                status: withdrawableTransactionsStatus})
+                    .populate("acctId")
+                    .populate("investmentId");
+
+        // get withdrawable transactions => Wait Period has passed and status is approved
+        let withdrawableTransactionsAmount = 0;
+        const day /**number */ = 1000 * 60 * 60 * 24;
+        const acctTransactions /** Array<TransactionModel> */ = [];
+        for(let transaction /**TransactionModel */ of userApprovedTransactions){
+            const transactionObject /**TransactionModel */ = transaction.toObject();
+            const timeDelta /** number */ = new Date().getTime()
+                                            - new Date(transactionObject.createdAt).getTime();
+            const daysPassedSinceTransaction /**number */= Math.floor(timeDelta / day);
+            transactionObject.days = daysPassedSinceTransaction;
+            const waitPeriod = transactionObject.investmentId.waitPeriod;
+            // console.log({waitPeriod, daysPassedSinceTransaction, transaction})
+
+            if(daysPassedSinceTransaction >= waitPeriod){
+                const percent /**number */ = 0.01 * transactionObject.investmentId.yieldValue;
+                console.log({transaction})
+                const daysFraction /**number */ = daysPassedSinceTransaction / waitPeriod;
+                const yieldOverTime /**number */ = daysFraction * (percent);
+                const currentValue /**number */ = transactionObject.amount * (1 + yieldOverTime);
+                transactionObject.currentValue =  +currentValue.toFixed(2);
+
+                // add transaction currValue to withdrawableTransactions
+                withdrawableTransactionsAmount += transactionObject.currentValue;
+                acctTransactions.push(transactionObject);
+            }
+        }
+        return {
+            withdrawableTransactions: acctTransactions,
+            withdrawableTransactionsAmount
+        };
+        
+    }
 }
 
-module.exports = {TransactionService};
+module.exports = {TransactionService, ITransactionService};

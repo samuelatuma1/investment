@@ -1,27 +1,33 @@
 const {validationResult} = require("express-validator");
 const {IInvestmentService} = require("../services/investment.service");
+const {IMailService } = require("../services/mail.service");
 
 // Route /transaction
 class TransactionController{
-    /*Private readonly */transactionService;
-    /*Private readonly */accountService;
-    /*Private readonly */investmentService;
-    /*Private readonly */ authService;
+    /*private readonly */transactionService;
+    /*private readonly */accountService;
+    /*private readonly */investmentService;
+    /*private readonly */ authService;
+    /*private readonly */ mailService
 
     /**
      * 
      * @param {*} accountService 
      * @param {*} transactionService 
      * @param {IInvestmentService} investmentService 
+     * @param {IMailService} mailService
      */
     constructor(accountService /*: IAccountService */, transactionService /*: ITransactionService */,
     investmentService /*: IInvestmentService */,
-    authService /**IUserService */
+    authService /**IUserService */,
+    mailService /**IMailService */
     ){
         this.accountService = accountService;
         this.transactionService = transactionService;
         this.investmentService = investmentService;
         this.authService = authService;
+        this.mailService = mailService
+
     }
     
     /** 
@@ -58,10 +64,8 @@ class TransactionController{
                     return res.status(403).json({error: "InvestmentId does not exist"});
                 }
 
-                // Get investmentAmount and currency
-                const amount /**:number */ = investment.amount;
+                // Get currency
                 const currency /**: string */ = investment.currency;
-                transactionObject.amount = amount;
                 transactionObject.currency = currency;
                 // add amount to transactionoBJECT
                 const newTransaction /*: TransactionModel */ = await this.transactionService
@@ -98,11 +102,22 @@ class TransactionController{
         }
     }
 
+
     /** 
      * @desc Allows only admin update transactions
      * @method patch /update/:transactionId
      * @protected (userId in req.userId)
-     * @payload {}
+     * @payload { 
+     *  transaction: {
+     *          status: enum {pending, approved, rejected},
+     *          ...        
+     *      },
+     *  email: {
+     *          email: email,
+     *          subject: string,
+     *          body: string
+     *  }
+     * }
      * @params {}, @query {}
      * @returns {updated: boolean}
     */
@@ -113,11 +128,21 @@ class TransactionController{
             const params /**: Object<string, string> */ = req.params;
             const transactionId /**:ObjectId */ = params.transactionId;
             const isAdmin /*boolean*/ = await this.authService.verifyIsAdminFromId(userId);
-            const updateData /**: Object<string, string> */ = req.body;
 
             if(!isAdmin){
                 return res.status(403).json({message: "You are not permitted to modify transaction"});
             }
+
+            const updateData /**: Object<string, string> */ = req.body.transaction;
+
+            // Send email
+            const  {to /**string */, subject /**string */, html /**string */} = req.body.mail;
+            if(!to || !subject || !html){
+                console.log("Some params missing");
+                return res.status(400).json({updated: false});
+            }
+            this.mailService.sendMail(to, subject, html);
+
             
             const transactionUpdated /**: boolean */= await this.transactionService.updateUserTransaction(transactionId, updateData);
             if(transactionUpdated){
@@ -126,11 +151,50 @@ class TransactionController{
             return res.status(400).json({updated: transactionUpdated})
             
         }
-        catch(err /**:Excetption */){
+        catch(err /**:Exception */){
             console.log(err)
             return res.status(500).json({error: err.message})
         }
 
+    }
+
+    /** 
+     * @method get /filtertransactions 
+     * @desc Allows only admin retrieve transactions
+     * @protected (userId in req.userId)
+     * @payload {}
+     * @params {}, @query { status?: String, ...}
+     * @returns {updated: boolean}
+    */
+    retrieveTransactions = async (req /**Request */, res /**: Response */) => {
+        try{
+            // Ensure user is admin
+            const userId /**ObjectId */ = req.userId;
+            const isAdmin /*boolean*/ = await this.authService.verifyIsAdminFromId(userId);
+            if(!isAdmin)
+                return res.status(403).json({message: "You are not permitted to retrieve transactions"});
+
+            const query /**: TransactionModelPatch */ = req.query;
+            const transactionRes /**List<TransactionModel> */= await this.transactionService.retrieveTransactions(query);
+
+            // Transform transactionsRes to transaction with user details
+            const transactions /**List<TransactionModel> */= [];
+
+            for(let transaction /**TransactionModel */  of transactionRes){
+                const transactionObject /**TransactionModel */ = transaction.toObject();
+                const userId/**ObjectId */ = transactionObject.acctId.acctHolderId;
+                const user /** User */ = await this.authService.retrieveUserById(userId);
+                transactionObject['user'] = user.toObject();
+                transactions.push(transactionObject);
+            }
+            
+            return res.status(200).json(transactions);
+
+
+        } catch(err /**Exception */){
+            console.log(err)
+            return res.status(500).json({error: err.message})
+        }
     }
 
 }

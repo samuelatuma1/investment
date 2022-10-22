@@ -1,3 +1,7 @@
+.container{
+    background-color: rgb(239, 237, 237);
+}
+
 .containerDesc {
     display: flex;
     align-items: center;
@@ -13,6 +17,7 @@
 .toggleRef{
     max-height: 80vh;
     overflow-y: scroll;
+    
 }
 .userAcctHomePage{
     display:flex;
@@ -51,17 +56,6 @@
     background-color: aliceblue;
 }
 
-@media screen and (min-width: 700px){
-    .container{
-        max-width: 48%;
-    }
-}
-
-@media screen and (min-width: 1200px){
-    .container{
-        max-width: 31%;
-    }
-}
 
 
 /*  RequestFundAccount Component */
@@ -74,7 +68,7 @@
     display: none !important;
 }
 
-input, select{
+input, select, textarea{
     padding: 10px;
     display: block;
     border-radius: 5px;
@@ -82,6 +76,105 @@ input, select{
     background-color: aliceblue;
     margin: 10px 0px;
 }
+textarea[name=html]{
+    min-width: 80%;
+    min-height: 150px;
+}
 input:hover, select:hover{
 
+}
+
+/* Investment Options */
+
+.investmentOptions {
+    display: flex;
+    /* justify-content: flex-end ; */
+    /* background-color: aliceblue; */
+    overflow-x: scroll;
+    padding: 20px 0px;
+}
+.investmentOptions h4{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: rgb(107, 105, 105);
+}
+.investmentOptions > div{
+   
+    min-width: 70%;
+    background-color: white;
+    padding: 10px;
+    border-radius: 10px;
+    margin: 20px 10px;
+    box-shadow: 0px 0px 3px 1px aliceblue;
+    /* flex-grow: 1; */
+}
+.investmentOptions .investmentOptionForm{
+    min-width: 90%;
+}
+.investmentOptions button{
+    color: black;
+    background: gold;
+    font-weight: bolder;
+}
+
+.investmentOptionForm .projection{
+    
+}
+
+div.userTransaction{
+    margin: 20px 5px;
+    border-radius: 20px;
+    padding: 10px;
+    background-color: white;
+    border: 1px solid rgb(215, 231, 231);
+}
+.userTransaction > section{
+    margin: 20px 0px;
+
+}
+.userTransaction > section > p{
+    display: flex;
+    align-items: center;
+}
+
+
+.statusBtns{
+    display: flex;
+    justify-content: space-evenly;
+    padding: 10px;
+}
+.statusBtns button{
+    padding: 12px;
+    border-radius: 25px;;
+    color: aliceblue;
+    background: black;
+}
+.emptyList h1, .emptyList p{
+    text-align: center;
+    min-width: 50%;
+    margin: auto;
+}
+.emptyList{
+    background-color: white;
+    min-height: 200px;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: center;
+    border-radius: 20px;
+    padding: 10px;
+}
+@media screen and (min-width: 700px){
+    .container{
+        max-width: 48%;
+    }
+    .investmentOptions > div{
+        min-width: 48%;
+    }
+}
+
+@media screen and (min-width: 1200px){
+    .container{
+        max-width: 31%;
+    }
 }

@@ -2,6 +2,26 @@ const nodemailer = require("nodemailer")
 const crypto = require("crypto")
 const {JWTService} = require("./jwt.service.js")
 
+class IMailService {
+    /**
+     * @desc sends mail to "to"
+     * @param {string} to 
+     * @param {string} subject 
+     * @param {string<html or text>} html 
+     */
+    sendMail = async (to /**: string */, subject /**string */, html /**{string<html or text>} */) /**void */ => {
+        throw new Error("Send Mail not implemented")
+    }
+
+    /**
+     * @desc sends verification mail to savedUser's email
+     * @param {Request} req 
+     * @param {User} savedUser 
+     */
+    sendVerificationMail = async (req /**Request */, savedUser /**User */) /**void */ => {
+        throw new Error("sendVerificationMail not implemented");
+    }
+}
 class Mail{
     /**
      * @desc instantiates mail data
@@ -72,4 +92,4 @@ class Mail{
 
 }
 
-module.exports = {Mail}
+module.exports = {Mail, IMailService}

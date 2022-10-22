@@ -9,15 +9,15 @@ import {useNavigate} from "react-router-dom";
 import {useReRouteIfNotSignedIn, useReRouteIfNotAdmin} from "../../customHooks/auth.hooks.js";
 
 // MdOutlinePendingActions => Approved 
-import { MdOutlinePendingActions, 
-    MdOutlineApproval, MdSmsFailed,
-     MdOutlineAttachMoney, MdDescription } from 'react-icons/md';
+import { MdEmail, MdDescription } from 'react-icons/md';
 
-
+// Loading State
+import {Loading} from "../../components/loading.js";
 
 import {BsCashCoin, BsFillCalendarRangeFill} from "react-icons/bs"
+import {BiHide, BiTimeFive } from "react-icons/bi";
 import {GiMoneyStack} from "react-icons/gi";
-import {AiFillMinusSquare, AiFillPlusSquare} from "react-icons/ai";
+import {AiFillMinusSquare, AiOutlineTransaction, AiOutlineUser} from "react-icons/ai";
 
 //Styling
 import "../css/admin.css";
@@ -47,23 +47,23 @@ import "../css/admin.css";
 
 
 
-  const investmentHeaders = (<div className="investment">
-  <h4>Amount <BsCashCoin /></h4>
-  <h4>Return On Investment <GiMoneyStack /></h4>
-  <h4>Wait Period (Days) <BsFillCalendarRangeFill /></h4>
-  {/* <h4>Currency <MdOutlineAttachMoney /></h4> */}
-  <h4>Description <MdDescription /></h4>
-  <h4>Update</h4>
-</div>)
+const investmentHeaders = (<div className="investment">
+        <h4>Minimum Amount <BsCashCoin /></h4>
+        <h4>% ROI <GiMoneyStack /></h4>
+        <h4>Wait Period (Days) <BsFillCalendarRangeFill /></h4>
+        {/* <h4>Currency <MdOutlineAttachMoney /></h4> */}
+        <h4>Name <MdDescription /></h4>
+        <h4>Update</h4>
+    </div>)
 
 const investmentFormHeaders = (<div className="investment">
-<h4>Amount <BsCashCoin /></h4>
-<h4>Return On Investment <GiMoneyStack /></h4>
-<h4>Wait Period (Days) <BsFillCalendarRangeFill /></h4>
-{/* <h4>Currency <MdOutlineAttachMoney /></h4> */}
-<h4>Description <MdDescription /></h4>
-<h4>Curency</h4>
-</div>)
+        <h4>Minimum Amount <BsCashCoin /></h4>
+        <h4>% ROI <GiMoneyStack /></h4>
+        <h4>Wait Period (Days) <BsFillCalendarRangeFill /></h4>
+        {/* <h4>Currency <MdOutlineAttachMoney /></h4> */}
+        <h4>Name <MdDescription /></h4>
+        <h4>Curency</h4>
+    </div>)
 
 
 const CreateInvestment /**: ReactComponent */ = props => {
@@ -133,7 +133,7 @@ const CreateInvestment /**: ReactComponent */ = props => {
                 />
                 <input type="number" min="1" 
                     required={true} value={updateInvestment.yieldValue}
-                    name="yieldValue" placeholder="Return on Investment"
+                    name="yieldValue" placeholder="Return on Investment (%)"
                     onChange={updateInvestmentAction}
                 />
                 <input type="number" min="0" 
@@ -186,7 +186,6 @@ const RetrieveAndUpdateInvestments /**: ReactComponent */= (props) => {
         if(retrieveInvestmentReq.ok){
             const investments /*: List<InvestmentModel> */ = await retrieveInvestmentReq.json();
             setInvestments(prevInvestments /**: List<InvestmentModel> */ => investments);
-            console.log(investments);
         } else{
             alert("An error occured retrieving investments");
         }
@@ -348,7 +347,7 @@ const RetrieveAndUpdateInvestments /**: ReactComponent */= (props) => {
          investments.map(investment /*: InvestmentModel */ => (
             <section className="investment" key={investment._id}>
                 <div>{investment.amount} {investment.currency}</div>
-                <div>{investment.yieldValue} {investment.currency}</div>
+                <div>{investment.yieldValue}%</div>
                 <div>{investment.waitPeriod}</div>
                
                 <div>{investment.desc || "No description"}</div>
@@ -395,7 +394,7 @@ const ViewTransactionHistory = (props) => {
     return (
     <div className="container">
         <h3 className="containerDesc">
-            Manage Investment
+            Manage Investments
             <button onClick={toggleRefDisplay} className="toggleBtn">Display</button>
         </h3>
         <main className="toggleRef" ref={toggleRef}>
@@ -404,22 +403,277 @@ const ViewTransactionHistory = (props) => {
     </div>)
 }
 
+/**
+ * @desc React Component for updating transactions
+ * @param {} props 
+ */
+const PendingTransactionDisplay /**:ReactComponent */ = (props) => {
+    const transactionContent /**Ref */ = useRef(null);
+     
+    const token /**:String */ = props.token;
+    
+    const transaction /**: TransactionModel(Populated) */ = props.transaction;
+
+    const hideEventResponse /**Ref */ = useRef(null);
+    // Keep track of current transaction and mail
+    const [currTransactionId /**ObjectId */, setCurrTransactionId /**Funct<T, T> */] = useState(transaction._id);
+    const [currTransaction /**Object<string, string> */, setCurrTransaction /**Funct<T, T> */] = useState({
+        status: transaction.status
+    })
+    const [currMail /**: Object<string, string> */, setCurrMail /**Funct<T, T> */] = useState({
+        to: transaction.user.email,
+        subject: `Status on ${transaction.investmentId.desc}`,
+        html: ""
+    });
+
+    /**
+     * @desc updates email body whenever transaction status is modified
+     */
+    function updateEmailText() /**void */{
+        setCurrMail(prevMail => ({
+            ...prevMail, html: `Dear ${transaction.user.fullName}, your status on the investment ${transaction.investmentId.desc}, with investment amount of ${transaction.amount}${transaction.currency} has been updated to ${currTransaction.status}`
+        }));
+    }
+    useEffect(() => {
+        updateEmailText()
+    }, [currTransaction])
+
+    const transactionContentDisplayAction /**Consumer<Event> */ = (e /**Event */) /**Void */ => {
+        transactionContent.current.classList.toggle("hide");
+    }
+
+    function updateStatusAction(e /**EventObject */) /**void */{
+        setCurrTransaction(prevStatus => ({...prevStatus, [e.target.name]: e.target.value}));
+    }
+    function updateMailAction(e /**EventObject */) /**void */{
+        setCurrMail(prevVal => ({...prevVal, [e.target.name]: e.target.value}))
+    }
+
+    function hideResponseAction(e /**EventObject */) /*void*/{
+        hideEventResponse.current.classList.add("hide");
+    }
+    function showResponseAction(){
+        hideEventResponse.current.classList.remove("hide");
+    }
+
+    async function updateStatusAndSendMailAction(e /**EventObject */) /**void */{
+        e.preventDefault();
+        // Merge mail and status states
+        const transactionAndMailBody /** Object<string, Object<string, string> */ = {
+            transaction: currTransaction,
+            mail: currMail
+        };
+        const transactionId /**ObjectId*/ = currTransactionId;
+
+        // send Request
+        const requestUrl /**String */ = `/transaction/update/${transactionId}`;
+        const updateTransactionSendMailRequest /**Request */= await fetch(requestUrl, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: token
+            },
+            body: JSON.stringify(transactionAndMailBody)
+        })
+
+        if(updateTransactionSendMailRequest.ok){
+            const updateTransactionSendMailResponse /**Response */ = await updateTransactionSendMailRequest.json();
+            if(updateTransactionSendMailResponse.updated){
+                showResponseAction();
+            }
+        }
+
+    }
+
+    
+    return (
+        <div className="adminTransactionUpdateDiv">
+            <h3 style={{display: "flex", justifyContent: "space-between"}}>
+                <span>
+                    {transaction.amount}{transaction.currency} {" "}
+                    {transaction.investmentId.desc} by {" "}
+                    {transaction.user.fullName}
+                </span>
+                 <button 
+                 className="showBtn"
+                 onClick={transactionContentDisplayAction}
+                 >Update</button>
+            </h3>
+            <div ref={transactionContent} className="hide transactionContent">
+                    
+                <div>
+                    
+                    <section>
+                        <h4>Transaction Name <AiOutlineTransaction /></h4>
+                        <p>{transaction.investmentId.desc}</p>
+                    </section>
+                    <section>
+                        <h4>Amount Invested <BsCashCoin /></h4>
+                        <p>{transaction.amount}{transaction.currency}</p>
+                    </section>
 
 
-const ViewEarnings = (props) => {
+                    <section>
+                        <h4>Investor <AiOutlineUser /></h4>
+                        <p>
+                            {transaction.user.fullName}
+                        </p>
+                    </section>
+                    <section>
+                        <h4>Investor Email <MdEmail /></h4>
+                        <p>
+                            {transaction.user.email}
+                        </p>
+                    </section>
+
+
+                    <section>
+                        <h4>Transaction Status</h4>
+                        <p>
+                            {transaction.status}
+                        </p>
+                    </section>
+                    <section>
+                        <h4>Transaction Date <BiTimeFive /></h4>
+                        <p>
+                            {transaction.updatedAt}
+                        </p>
+                    </section>
+                </div>
+
+                <form className="updateStatus" onSubmit={updateStatusAndSendMailAction}>
+                    <h4>Update Status</h4>
+                    <select value={currTransaction.status}
+                    name="status"
+                    onChange={updateStatusAction}>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+
+                    <div>
+                        <h4>Accompanying Mail</h4>
+                        <main>
+                            <label htmlFor="subject">
+                                <p>Subject: *</p>
+                                <input id="subject"
+                                name="subject"
+                                value={currMail.subject}
+                                required={true}
+                                minLength={5}
+                                onChange={updateMailAction}
+                                />
+                            </label>
+
+                            <label htmlFor="subject">
+                                <p>Email Body: *</p>
+                                <textarea id="html"
+                                name="html"
+                                value={currMail.html}
+                                required={true}
+                                minLength={5}
+                                onChange={updateMailAction}
+                                />
+                            </label>
+                        </main>
+                    </div>
+                    <p className="hide" ref={hideEventResponse} >
+                        Status successfully updated and email sent successfully
+                        <button type="button" onClick={hideResponseAction}><BiHide /></button>
+                    </p>
+                    <button className={"goldBtn"}>
+                        Update Status and Send Mail
+                    </button>
+                    
+                </form>
+            </div>
+        </div>
+    );
+
+}
+
+
+
+const UpdatePendingTransactions = (props) => {
+    const [loading, setLoading] = useState(false);
+
+    const [pendingTransactions, setPendingTransactions] = useState([]);
     const toggleRef = useRef();
 
+   const [transactionsStatus, setTransactionsStatus] = useState("pending");
+
+    const User /*: UserModel */= props.user || {};
+    const token  /* JWTToken */= "Bearer " + User.token || "";
     function toggleRefDisplay(e){
         toggleRef.current.classList.toggle("hide");
     }
+    useEffect(() => {
+        getPendingTransactions();
+    }, [])
+    // Get Pending transactions
+    async function getPendingTransactions(status /** enum {pending, approved, rejected}*/ = "pending") /**void */{
+        setLoading(true);
+        const transactionsReq /**: Request */ = await fetch(`/transaction/filtertransactions?status=${status}`, {
+            headers: {
+                authorization: token
+            }
+        });
+        if(transactionsReq.ok){
+            setLoading(false);
+            const transactionsRes /**: List<TransactionModel> */ = await transactionsReq.json();
+            setPendingTransactions(transactions => transactionsRes);
+        }
+    }
+
+    function getTransactionsWithStatus(e /**EventObject */) /**void */{
+        // get currentstatus of button
+        const selectedStatus /*string*/ = e.target.id;
+        getPendingTransactions(selectedStatus);
+        setTransactionsStatus(selectedStatus);
+
+    }
     return (<div className="container">
         <h3 className="containerDesc">
-            View Transaction History
+            Update Transactions 
             <button onClick={toggleRefDisplay}>Display</button>
         </h3>
-        <main className="toggleRef" ref={toggleRef}>
-            Hello, world
-        </main>
+        {
+            loading ? <Loading /> : (
+                <main className="toggleRef" ref={toggleRef}>
+                    <section className="statuses">
+                        <button id="pending" 
+                        onClick={getTransactionsWithStatus}>
+                            Pending
+                        </button>
+                        <button id="approved"
+                        onClick={getTransactionsWithStatus}>
+                            Approved
+                        </button>
+                        <button id="rejected"
+                        onClick={getTransactionsWithStatus}>
+                            Rejected
+                        </button>
+                    </section>
+                    <header>
+                        <h3>
+                        {transactionsStatus} Transactions
+                        </h3>
+                    </header>
+                    <div className="transactionsContainer">
+                        {
+                            pendingTransactions.map(transaction => (
+                                <div key={transaction._id}>
+                                   <PendingTransactionDisplay 
+                                   transaction={transaction}
+                                   token={token}
+                                   />
+                                </div>
+                            ))
+                        }
+                    </div>
+                </main>
+            )
+        }
     </div>)
 }
 
@@ -470,7 +724,7 @@ const UserAdminComponent /*: ReactComponent */ = (props) => {
     const User = useRecoilValue(UserState);
     return (<div className="userAcctHomePage">
         <ViewTransactionHistory user={User}/>
-        <RequestWithdrawal user={User}/>
+        <UpdatePendingTransactions user={User}/>
         <RequestWithdrawal user={User}/>
         <RequestWithdrawal user={User}/>
        

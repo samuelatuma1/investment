@@ -9,9 +9,6 @@ class IInvestmentService{
     async createInvestment(investmentBody){
         throw new Error("createInvestment not implemented");
     }
-
-    
-
      /**
      * 
      * @param {ObjectId} _id Investment Id

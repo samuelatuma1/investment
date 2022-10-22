@@ -16,4 +16,19 @@ function getMult({data /*: string */, repeat /*: number */}){
     }
 }
 
-getMult({data: "samuel", repeat: 10})
+// getMult({data: "samuel", repeat: 10})
+
+const events = require("events");
+
+const EventEmitter /*: EventEmitter */ = new events.EventEmitter();
+function /*void */ alert(num /**number */){
+  console.log("I was clicked ", num, " times");
+}
+
+// EventEmitter.on("click", alert);
+const num /**number */ = 20;
+// EventEmitter.emit("click", num);
+const oldDate /**DateTime */ = new Date("2022-10-12T19:54:00.627Z").getTime();
+const currTime = new Date().getTime();
+
+console.log((currTime - oldDate)/ (60 * 60 * 24 * 1000));

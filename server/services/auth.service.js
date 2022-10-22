@@ -147,6 +147,17 @@ class AuthService{
             return false;
         }
     }
+
+    /**
+     * @desc retrieves user with the given id
+     * @param {ObjectId} userId 
+     */
+    retrieveUserById = async (userId) => {
+        const user /*: User*/ = await User.findById(userId).select({password: 0});
+        
+
+        return user;
+    }
 }
 
 module.exports = {AuthService}

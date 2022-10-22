@@ -40,6 +40,9 @@ app.use("/transaction", transactionRoute);
 const {investmentRoute} = require("./routes/investment.route.js");
 app.use("/investment", investmentRoute);
 
+const {withdrawalRoute} = require("./routes/withdrawal.route.js");
+app.use("/withdrawal", withdrawalRoute);
+
 
 
 module.exports = {app}

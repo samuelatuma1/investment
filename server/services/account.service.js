@@ -85,4 +85,4 @@ class AccountService /* implements IAccountService */ {
     }
 }
 
-module.exports = {AccountService}
+module.exports = {AccountService, IAccountService}

@@ -9,12 +9,16 @@ import {useNavigate} from "react-router-dom";
 import {useReRouteIfNotSignedIn} from "../../customHooks/auth.hooks.js";
 
 // MdOutlinePendingActions => Approved 
-import { MdOutlinePendingActions, MdOutlineApproval, MdSmsFailed } from 'react-icons/md';
+import { MdNoteAdd} from 'react-icons/md';
 
-import {AiFillMinusSquare, AiFillPlusSquare,  AiOutlineLoading3Quarters} from "react-icons/ai";
-import {GrStatusGood} from "react-icons/gr";
+import {AiFillMinusSquare, AiFillPlusSquare,  AiOutlineLoading3Quarters, AiOutlineInfoCircle} from "react-icons/ai";
 
+import {FiArrowUp} from "react-icons/fi";
+import {GrStatusGood, GrDocumentNotes} from "react-icons/gr";
+import {BsBarChartFill, BsCashCoin} from "react-icons/bs";
+import {FcLineChart, FcComboChart} from "react-icons/fc";
 import {BiHide} from "react-icons/bi";
+import {AiOutlineUser} from "react-icons/ai";
 //Styling
 import "../css/acct.css";
 import "../css/general.css";
@@ -67,16 +71,22 @@ const ViewTransactionHistory = (props) => {
     const User /*: UserModel */= props.user || {};
     const token  /* JWTToken */= "Bearer " + User.token || "";
 
-    const [userTransactions, setUserTransactions] = useState([]);
 
+    // States
+    const [userTransactions, setUserTransactions] = useState([]);
+    const [currStatus /**string */, setCurrStatus /**Funct<T, T> */] = useState("");
+    const [currStatusTransactions /**Array<TransactionModel> */, setCurrStatusTransactions /** Funct<T, T> */] = useState([]);
+
+
+    // Effects 
     useEffect(() => {
         getTransactions()
     }, [])
 
-    function toggleRefDisplay(){
-        toggleRef.current.classList.toggle("hide");
-    }
-    // Get transactions
+    useEffect(() => {
+        updateCurrTransactions() 
+    }, [currStatus])
+
     async function getTransactions(){
         const userAcctTransactionsReq /**: Request */ = await fetch(`/transaction/gettransactions`, {
             headers: {
@@ -88,8 +98,28 @@ const ViewTransactionHistory = (props) => {
             const userAcctTransactionsRes /**: List<TransactionModel> */ = await userAcctTransactionsReq.json();
             setUserTransactions(prevTransactions => userAcctTransactionsRes.acctTransactions);
             // alert(JSON.stringify(userAcctTransactionsRes));
+           
         }
     }
+
+    function updateCurrTransactions() /**void */{
+        setCurrStatusTransactions(currTransactions => {
+            return userTransactions.filter(transaction => 
+                transaction.status.toLowerCase() === currStatus.toLowerCase()
+             );
+        })
+    }
+    function toggleRefDisplay(){
+        toggleRef.current.classList.toggle("hide");
+    }
+    
+    // Events
+    function updateTransactionsStatus(e /**EventObject */) /**void */{
+        // get status to update to
+        const status /**string*/ = e.target.id;
+        setCurrStatus(prev => status);
+    }
+
     return (
     <div className="container">
         <h3 className="containerDesc">
@@ -97,53 +127,132 @@ const ViewTransactionHistory = (props) => {
             <button onClick={toggleRefDisplay} className="toggleBtn">Display</button>
         </h3>
         <main className="toggleRef" ref={toggleRef}>
+            <section className="statusBtns">
+                <button id="pending" onClick={updateTransactionsStatus}>Pending <GrStatusGood /></button>
+                <button id="approved" onClick={updateTransactionsStatus}>Approved</button>
+                <button id="rejected" onClick={updateTransactionsStatus}>Rejected</button>
+            </section>
             {
-                userTransactions.map(transaction /**: TransactionModel */ => 
+                currStatusTransactions.length > 0 ? currStatusTransactions.map(transaction /**: TransactionModel */ => 
+   
                     (
-                    <section key={transaction._id} className={"transaction"}>
-                        <div className="transactionStatus">
-                        {transaction.status == "pending" ? 
-                            <MdOutlinePendingActions /> : 
-                            transaction.status == "approved" ? 
-                            < MdOutlineApproval/> : <MdSmsFailed />
-                        }
-                        </div>
-                        <div className="transactionDesc">
-                            {transaction.amount > 0 ? <>
-                                <AiFillMinusSquare />
-                                Debit 
-                                {" " + transaction.desc}
-                            </> : <>
-                                <AiFillPlusSquare />
-                                Credit 
-                                {" " + transaction.desc}
-                            </>} 
-                        </div>
+                        <div className="userTransaction" key={transaction._id}>
+                            <section>
+                                <p>ACCOUNT HOLDER <AiOutlineUser /></p>
+                                <h4>{User.fullName}</h4>
+                            </section>
+                            <section>
+                                <p>TRANSACTION ID</p>
+                                <h4>{transaction._id}</h4>
+                            </section>
 
-                        <div className="transactionDate">
-                                {transaction.createdAt.slice(0, 20)}
-                        </div>
+                            <section>
+                                <p>STATUS <GrStatusGood /></p>
+                                <h4>{transaction.status}</h4>
+                            </section>
+                            <section>
+                                <p>AMOUNT INVESTED <BsCashCoin /></p>
+                                <h4>{transaction.amount.toLocaleString('en-US')}{transaction.currency}</h4>
+                            </section>
 
-                        <div className="amount">
-                            {transaction.amount} {transaction.currency}
+                            <section>
+                                <p>CURRENT VALUE <FcLineChart /></p>
+                                <h4 style={{color: "teal"}}>
+                                    {transaction.currentValue.toLocaleString('en-US')}{transaction.currency}
+                                </h4>
+                            </section>
                         </div>
-                    </section>
-
-                    
                     )
-                )
+                ):
+                currStatus === "" ? <></>:
+                (<div className="emptyList">
+                    <h1><MdNoteAdd /></h1>
+                    <p>You have no {currStatus} transactions yet</p>
+                </div>)
+
             }
         </main>
     </div>)
 }
 
+/**
+ * 
+ * @param {*} props 
+ */
+const AvailableInvestments = props => {
+    const User /*: UserModel */= props.user || {};
+    const [investments /**: Array<InvestmentModel> */, 
+        setInvestments /**: funct<T, T> */] = props.investmentsState;
+    const [hideForm /**: Boolean */, setHideForm /**: Funct<T, T> */] = props.hideFormState;
+    const [investment /**InvestmentModel */, setInvestment/**Funct<T, T> */] = props.investmentState;
+
+    function toggleFormDisplay(e /**: Event */) /*: void*/{
+        const currInvestmentId /**: ObjectId */ = e.target.id;
+        const currInvestment /**InvestmentModel */ = findInvestmentById(investments, currInvestmentId);
+        setInvestment(prevInv => currInvestment);
+        setHideForm(prevState => false);
+    }
+
+    /**
+     * 
+     * @param {InvestmentModel[]} investments 
+     * @param {ObjectId} _id 
+     * @returns 
+     */
+    function findInvestmentById(investments/**: InvestmentModel[] */, _id /**: ObjectId */) /**InvestmentModel */{
+        const investment /**InvestmentModel */ = investments.find(investment => 
+            investment._id === _id);
+        return investment;
+    }
+
+    return (<div>
+        <div className="investmentOptions">
+            {
+                investments.map(investment => (
+                    <div key={investment._id}>
+                        <h4>{investment.desc}   <AiOutlineInfoCircle /></h4>
+                        <br/>
+                        <main>
+                            <section>
+                                <p>Minimum Investment</p>
+                                <h2>{investment.amount.toLocaleString('en-US')}
+                                {investment.currency}</h2>
+                            </section>
+                            <br/>
+                            <section>
+                                <p>ROI 
+                                    <FiArrowUp />
+                                    <BsBarChartFill />
+                                    </p>
+                                <h2>{investment.yieldValue}
+                                %</h2>
+                                <button
+                                onClick={toggleFormDisplay}
+                                id={investment._id}>Invest
+                                </button>
+                            </section>
+                        </main>
+                    </div>
+                ))
+            }
+        </div>        
+
+    </div>)
+}
+
+
 const RequestFundAccount = (props) => {
     const hideSuccessRef /**: Reference */ = useRef();
     const [investments /**: Array<InvestmentModel> */, 
         setInvestments /**: funct<T, T> */] = useState([])
+     
     // Get token
     const User /*: UserModel */= props.user || {};
+    const [hideForm /**: Boolean */, setHideForm /**: Funct<T, T> */] = useState(true);
     const token  /* JWTToken */= "Bearer " + User.token || "";
+
+    // Constants
+    const PERCENT /**: number  */ = 100;
 
     // Manage Loading Assets
     const [loading /**: bool */, setLoading /**: funct<bool, bool> */] = useState(false);
@@ -151,13 +260,41 @@ const RequestFundAccount = (props) => {
     // Manage form
     const [transactionForm /**: Object */, setTransactionForm /** funct<T, T> */] = useState({
         desc: "",
+        investmentId: "",
+        amount: 0
+    })
+
+    const [investment /**InvestmentModel */, setInvestment/**Funct<T, T> */] = useState({
+        amount: 0,
+        yieldValue: 0,
+        waitPeriod: 0,
+        desc: "",
+        _id: "",
         investmentId: ""
     })
+
+    
     
     useEffect(() => {
         getInvestments();
     }, [])
+    // Update transactionFormInvestmentId when investment changes;
+    useEffect(() => {
+        setTransactionInvestmentId();
+    }, [investment])
 
+    /**
+     * 
+     * @returns {number}Computed transaction amount for investment
+     */
+    const computeValue = ()/**: number */ => {
+        const transactionAmt /**number */ = parseFloat(transactionForm.amount);
+        const transactionYield /**number */ = parseFloat(transactionForm.amount * investment.yieldValue / PERCENT);
+        const transactionValue /**: number*/ =  transactionAmt + transactionYield; 
+                
+
+        return transactionValue ? +transactionValue.toFixed(2) : 0;
+        }
     // Handles toggle
     const toggleRef = useRef();
     function toggleRefDisplay(e){
@@ -165,6 +302,11 @@ const RequestFundAccount = (props) => {
     }
 
 
+    // set Transaction InvestmentId
+    function setTransactionInvestmentId() /**: Void */{
+        setTransactionForm(prevForm => ({...prevForm, 
+                    investmentId: investment._id}))
+    }
 
     // Get available investments
     async function getInvestments(){
@@ -190,6 +332,7 @@ const RequestFundAccount = (props) => {
         e.preventDefault();
         const transactionDTO /**: Object<str, str>*/ = JSON.stringify(transactionForm);
         setLoading(true);
+        
         const createTransactionReq /*: Request */ = await fetch(`/transaction/create`, {
             method: "POST",
             headers: {
@@ -207,59 +350,112 @@ const RequestFundAccount = (props) => {
             })
             // Display success message
             hideSuccessRef.current.classList.remove("hide");
+            // hide investment form
+            setHideForm(prevState => true);
         }
     }
     const hideSuccessMsgAction = e /**: EventObject */ => {
         
         hideSuccessRef.current.classList.add("hide");
     }
-    return (<div className="container">
+    return (<div className="container requestInvestment">
         <h3 className="containerDesc">
             Request to fund Investment
             <button onClick={toggleRefDisplay} className="toggleBtn">Display</button>
         </h3>
+        
+
         <main className="toggleRef" ref={toggleRef}>
             {/* Form to fund investment */}
             {
                 loading ? (<Loading />) : (
                     
-                    <form onSubmit={submitTransactionAction}>
-                    <div className="successful" ref={hideSuccessRef}>
-                        <GrStatusGood /> 
-                        Your request for funding investment was successful
-                        <button onClick={hideSuccessMsgAction} type="button"><BiHide /></button>
+                    <div>
+                        <h3>Available Investments</h3>
+                        <div className="successful hide" ref={hideSuccessRef}>
+                            <GrStatusGood /> 
+                            Your request for funding investment was successful
+                            <button onClick={hideSuccessMsgAction} type="button"><BiHide /></button>
+                        </div>
+                        <form onSubmit={submitTransactionAction}className={ hideForm ? "hide": ""}>
+                        
+                        
+                        <div className="investmentOptions focus">
+                                <div key={investment._id} className="investmentOptionForm">
+                                    <h4>{investment.desc}           <AiOutlineInfoCircle /></h4>
+                                    <br/>
+                                    <main>
+                                        <section>
+                                            <p>Minimum Investment</p>
+                                            <h2>{investment.amount.toLocaleString('en-US')}
+                                            {investment.currency}</h2>
+                                        </section>
+                                        <br/>
+                                        <section>
+                                            <p>ROI 
+                                                <FiArrowUp />
+                                                <BsBarChartFill />
+                                                </p>
+                                            <h2>{investment.yieldValue}
+                                            %</h2>
+                                        </section>
+                                        <br />
+                                        <section>
+                                            <h2>
+                                                Return value <FcComboChart />
+                                            </h2>
+                                            <main className="projection">
+                                                <h2> 
+                                                    {computeValue().toLocaleString('en-US')}{investment.currency }
+
+                                                </h2>
+                                                <p>
+                                                    for 
+                                                     {" " + (transactionForm.amount.toLocaleString('en-US'))}{investment.currency + " "}in 
+                                                    {" " + investment.waitPeriod} days
+                                                </p>
+                                            </main>
+
+                                        </section>
+                                        <br />
+                                        {/* Form Data */}
+                                        <section>
+                                            
+                                            <label htmlFor="amount">
+                                                <p>Amount</p>
+                                                <input name="amount"
+                                                value={transactionForm.amount}
+                                                required={true}
+                                                type="number"
+                                                min={investment.amount}
+                                                onChange={updateTransactionForm}
+                                                />
+                                            </label>
+
+                                            <label htmlFor="desc">
+                                            <p>Add Extra Comment (Optional)</p>
+                                            <input name="desc"
+                                            value={transactionForm.desc} 
+                                            onChange={updateTransactionForm}/>
+                                        </label>
+                        
+                                        <button>Request to fund investment</button>
+                                        </section>
+                                    </main>
+                                </div>
+                        </div>
+        
+                        
+                        </form>
+                        <AvailableInvestments 
+                            user={User} 
+                            investmentsState={[investments, setInvestments]} 
+                            hideFormState={[hideForm, setHideForm]}
+                            investmentState={[investment, setInvestment]}
+
+                            />
+                        
                     </div>
-                    <label htmlFor="investmentId">
-                        <p>Select Investment</p>
-                        <select 
-                            name="investmentId"
-                            value={transactionForm.investmentId} 
-                            onChange={updateTransactionForm}
-                            minLength="2"
-                            required={true} >
-                            <option value="">
-                                --
-                            </option>
-                            {
-                                investments.map(inv => (
-                                    <option value={inv._id} key={inv._id}>
-                                        Invest {inv.amount} {inv.currency} for a return of {inv.yieldValue}{inv.currency} in {inv.waitPeriod} days
-                                    </option>
-                                ))
-                            }
-                            
-                        </select>
-                    </label>
-    
-                    <label htmlFor="desc">
-                        <p>Add Extra Comment (Optional)</p>
-                        <input name="desc"
-                        value={transactionForm.desc} 
-                        onChange={updateTransactionForm}/>
-                    </label>
-    
-                    <button>Request to fund investment</button>
-                </form>
                 )
             }
             
