@@ -14,11 +14,12 @@ import { MdNoteAdd} from 'react-icons/md';
 import {AiFillMinusSquare, AiFillPlusSquare,  AiOutlineLoading3Quarters, AiOutlineInfoCircle} from "react-icons/ai";
 
 import {FiArrowUp} from "react-icons/fi";
+import {FaMoneyBillAlt, FaUserAlt} from "react-icons/fa";
 import {GrStatusGood, GrDocumentNotes} from "react-icons/gr";
-import {BsBarChartFill, BsCashCoin} from "react-icons/bs";
+import {BsBarChartFill, BsCashCoin, BsCoin} from "react-icons/bs";
 import {FcLineChart, FcComboChart} from "react-icons/fc";
 import {BiHide} from "react-icons/bi";
-import {AiOutlineUser} from "react-icons/ai";
+import {AiOutlineUser, AiFillMoneyCollect} from "react-icons/ai";
 //Styling
 import "../css/acct.css";
 import "../css/general.css";
@@ -480,22 +481,340 @@ const ViewEarnings = (props) => {
     </div>)
 }
 
+const WithdrawalForm = ({ currency /** String */, 
+withdrawableAndPendingBalance /**
+    "availableWithdrawableBalance": number,
+      "pendingWithdrawableBalance": number
+*/, 
+withdrawableAndPendingBalState /**
+    [withdrawableAndPendingBalance,
+    setWithdrawableAndPendingBalance]
+*/
+,
+
+token /** String */
+})=> {
+
+    // States
+    const [withdrawalForm /**
+        amount: 0,
+        currency: string*/, 
+        setWithdrawalForm /**Funct<T, T> */ ] = useState({
+        amount: 0,
+        currency: currency
+    })
+
+    const [status, setStatus] = useState(true);
+
+    const withdrawalRequestRef = useRef(null);
+    
+    const [ _ /**{[key: string], {
+                "availableWithdrawableBalance": number,
+            "pendingWithdrawableBalance": number
+            }} */,
+         setWithdrawableAndPendingBalance /**Funct<T, T> */]  = withdrawableAndPendingBalState;
+
+    const [amtWithdrawn /** numString */, setAmtWithdrawn /**Funct<T, T> */] = useState(withdrawalForm.amount.toLocaleString());
+
+    // End of states
+
+    // Effects
+
+    
+
+    // End of Effects
+    
+    // helper functions
+    /**
+     * desc updates Withdrawable And Pending Balance to reflect most recent withdrawal
+     */
+    function updateWithdrawableAndPendingBalance() /** void */{
+        setWithdrawableAndPendingBalance(prevState => {
+            const clonedWithdrawalBalances  /**{[key: string], {
+                "availableWithdrawableBalance": number,
+              "pendingWithdrawableBalance": number
+            }} */ = {...prevState};
+            clonedWithdrawalBalances[currency]
+                .availableWithdrawableBalance -= parseFloat(withdrawalForm.amount);
+            clonedWithdrawalBalances[currency]
+                .pendingWithdrawableBalance += parseFloat(withdrawalForm.amount);
+            return clonedWithdrawalBalances
+        })
+    }
+
+    /**
+     * @desc sets withdrawal form amount to 0 and updates amount withdrawn to the one in the form
+     */
+    function clearWithdrawalFormAndUpdateAmtWithdrawn() /* void */{
+        setAmtWithdrawn(currVal => withdrawalForm.amount);
+        setWithdrawalForm(currVal => ({...currVal, amount: 0}))
+
+    }
+
+    // End of helper functions
 
 
+
+    // Html Events
+    function updateWithdrawalFormAction(e /**Event */) /*void*/{
+        setWithdrawalForm(currState => ({...currState,
+            [e.target.name]: e.target.value}))
+    }
+
+
+    async function submitWithdrawalFormAction(e /**Event */) /**Void */{
+        e.preventDefault();
+        const withdrawalReq /** Request */ = await fetch(`/withdrawal/withdraw`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                authorization: token
+            },
+            body: JSON.stringify(withdrawalForm)
+        });
+
+        if(withdrawalReq.ok){
+            setStatus(true);
+            withdrawalRequestRef.current.classList.remove("hide");
+            updateWithdrawableAndPendingBalance();
+            clearWithdrawalFormAndUpdateAmtWithdrawn();
+
+        } else{
+            setStatus(false);
+            withdrawalRequestRef.current.classList.remove("hide");
+        }
+    }
+    // End of HTML Events
+
+
+
+    return (
+        <form className="withdrawalForm" onSubmit={submitWithdrawalFormAction}>
+            <div className="withdrawalFormDesc">
+            {/* <FaUserAlt />
+            Withdraw money */}
+            </div>
+
+            <main>
+                <div className="withdrawalLog">
+                    <p 
+                    className={status ? "success hide": "error hide"}
+                    ref={withdrawalRequestRef}
+                    >
+                        <AiOutlineInfoCircle />
+                        {status ? `Your request to withdraw ${amtWithdrawn} ${currency} was successful`
+                            : 
+                        `Error processing withdrawal request. Please try again`
+                    }
+                        
+                    </p>
+                    <br></br>
+                </div>
+                <label htmlFor="currency">
+                    Currency
+                    <input defaultValue={withdrawalForm.currency} name="currency"/>
+                </label>
+
+                <label htmlFor="amount">
+                    Amount to withdraw
+                    <input
+                    name="amount"
+                    type="number"
+                    max={
+                        withdrawableAndPendingBalance
+                        ["availableWithdrawableBalance"]
+                    }
+                    min={1}
+                    required={true}
+                    value={withdrawalForm.amount}
+                    onChange={updateWithdrawalFormAction}
+                    />
+                </label>
+                <input type="checkbox" required={true} />
+                <label> I confirm I want to withdraw { ' '}
+                {withdrawalForm['amount']
+                    .toLocaleString("en-US")} {currency}
+                </label>
+                    <br />
+                <button type="submit">
+                    Request Withdrawal
+                </button>
+            </main>
+
+
+
+        </form>
+    )
+}
 
 const RequestWithdrawal = (props) => {
+    // States
     const toggleRef = useRef();
+    const User /*: UserModel */= props.user || {};
+    const token  /* JWTToken */= "Bearer " + User.token || "";
+    
+    const [loading /**boolean */, setLoading /** Funct<T, T> */] = useState(false);
+    const [withdrawableAndPendingBalance /**{[key: string], {
+        "availableWithdrawableBalance": number,
+      "pendingWithdrawableBalance": number
+    }} */,
+         setWithdrawableAndPendingBalance /**Funct<T, T> */] = useState({});
 
+    const [currentCurrency /** String */, 
+        setCurrentCurrency /** Funct<T, T> */]  = useState("");
+    const activeBtnRefs = useRef([]);
+
+    const formDisplayRef = useRef(null);
+
+    // End of states
+    
+
+
+    // Effects
+    useEffect(() => {
+        getWithdrawableAndPendingBalance();
+        
+    }, [])
+    async function getWithdrawableAndPendingBalance(){
+        setLoading(currLoadingState => true);
+        const withdrawableAndPendingBalReq /**Response */ = await fetch("/withdrawal/getwithdrawablebalance", {
+            method: "GET",
+            headers: {
+                authorization: token
+            }
+        });
+        if(withdrawableAndPendingBalReq.ok){
+            setLoading(currLoadingState => false);
+            const res /**Response */ = await withdrawableAndPendingBalReq.json();
+            setWithdrawableAndPendingBalance(prevBalances => 
+                res.withdrawableAndPendingBalance);
+
+            // set currency to something other than an empty string
+            for(const curr /** String */ in withdrawableAndPendingBalance){
+                setCurrentCurrency(c => curr);
+            }
+            
+        } else{
+            alert("an error occurred");
+        }
+    }
+    // end of effects Actions
+
+
+
+    // HTML Events
+    function setToActiveAction(e /**Event */) /*Void*/{
+        const activeClass /**String */ = "isActive";
+        const elementId /**number */ = e.target.id;
+        const currencyName /**String */ = e.target.name;
+        activeBtnRefs.current.forEach(btnElement => {
+            btnElement.classList.remove(activeClass)
+        });
+        activeBtnRefs.current[elementId].classList.add(activeClass);
+
+        // populate available and pending withdrawal balance
+        setCurrentCurrency(c => currencyName);
+    }
+
+    function toggleFormDisplayAction(e /**Event */) /**void */{
+        formDisplayRef.current.classList.toggle("hide");
+    }
+
+    // end of html events
     function toggleRefDisplay(e){
         toggleRef.current.classList.toggle("hide");
     }
     return (<div className="container">
         <h3 className="containerDesc">
-            View Transaction History
+            Request Withdrawal
             <button onClick={toggleRefDisplay}>Display</button>
         </h3>
         <main className="toggleRef" ref={toggleRef}>
-            Hello, world
+            {
+                loading ? <Loading />: <div>
+                    <div className="withdrawalDetails">
+                        <main className="withdrawalCurrencies">
+                            {Object.entries(withdrawableAndPendingBalance).map(
+                                (balTuple, id) => (
+                                    <button key={id} 
+                                    ref={
+                                        (el) => (activeBtnRefs.current[id] = el)
+                                    }
+                                    id={id}
+                                    onClick={setToActiveAction}
+                                    name={balTuple[0]}
+                                    >
+                                        <BsCoin />
+                                        {balTuple[0]}
+                                    </button>
+                                )
+                            )}
+                        </main>
+
+                        {/* Display balances */}
+                        <main className="displayBalances">
+                            {
+                                currentCurrency === "" ? <></>:
+                                    <div>
+                                       <section>
+                                            <h5>
+                                                WITHDRAWABLE  {currentCurrency.toLocaleUpperCase()} BALANCE
+                                            </h5>
+                                            <h2>
+                                                {
+                                                    withdrawableAndPendingBalance
+                                                        [currentCurrency]
+                                                        ["availableWithdrawableBalance"]
+                                                        .toLocaleString("en-US")
+                                                }{
+                                                    currentCurrency
+                                                }
+                                            </h2>
+                                       </section>
+                                    
+                                       <section>
+                                            <h5>
+                                                PENDING  {currentCurrency.toLocaleUpperCase()} BALANCE
+                                            </h5>
+                                            <h2>
+                                                {
+                                                    withdrawableAndPendingBalance
+                                                        [currentCurrency]
+                                                        ["pendingWithdrawableBalance"]
+                                                        .toLocaleString("en-US")
+                                                }{
+                                                    currentCurrency
+                                                }
+                                            </h2>
+                                       </section>
+
+                                      <main>
+                                        <p onClick={toggleFormDisplayAction}>
+                                            Withdraw {currentCurrency.toLocaleUpperCase()} <AiFillMoneyCollect />
+                                        </p>
+                                        <div ref={formDisplayRef} className="hide">
+                                            
+                                                <WithdrawalForm
+                                                currency={currentCurrency}
+                                                withdrawableAndPendingBalance={
+                                                    withdrawableAndPendingBalance[currentCurrency]
+                                                }
+                                                withdrawableAndPendingBalState={
+                                                [withdrawableAndPendingBalance,
+                                                 setWithdrawableAndPendingBalance]
+                                                }
+                                                token={token}
+                                                />
+                                        </div>
+                                      </main>
+                                    </div>
+
+                            }
+                        </main>
+                    </div>
+
+                </div>
+            }
         </main>
     </div>)
 }
@@ -512,7 +831,7 @@ const UserAccountComponent /*: ReactComponent */ = (props) => {
     return (<div className="userAcctHomePage">
         <ViewTransactionHistory user={User}/>
         <RequestFundAccount user={User}/>
-        <ViewTransactionHistory user={User}/>
+        <RequestWithdrawal user={User}/>
         <ViewTransactionHistory user={User}/>
     </div>)
     
