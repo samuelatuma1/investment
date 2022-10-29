@@ -122,7 +122,8 @@ class TransactionService /*: implements ITransactionService */ {
                 transactionObject.days = daysPassedSinceTransaction;
                 const percent /**number */ = 0.01 * transactionObject.investmentId.yieldValue;
                 const waitPeriod = transactionObject.investmentId.waitPeriod;
-                const daysFraction /**number */ = daysPassedSinceTransaction / waitPeriod;
+                const daysFraction /**number */ = (daysPassedSinceTransaction / waitPeriod) >= 1 ?
+                                                        1 :  (daysPassedSinceTransaction / waitPeriod);
                 const yieldOverTime /**number */ = daysFraction * (percent);
                 const currentValue /**number */ = transactionObject.amount * (1 + yieldOverTime);
                 transactionObject.currentValue =  +currentValue.toFixed(2);;
@@ -211,7 +212,6 @@ class TransactionService /*: implements ITransactionService */ {
 
             if(daysPassedSinceTransaction >= waitPeriod){
                 const percent /**number */ = 0.01 * transactionObject.investmentId.yieldValue;
-                console.log({transaction})
                 const daysFraction /**number */ = daysPassedSinceTransaction / waitPeriod;
                 const yieldOverTime /**number */ = daysFraction * (percent);
                 const currentValue /**number */ = transactionObject.amount * (1 + yieldOverTime);

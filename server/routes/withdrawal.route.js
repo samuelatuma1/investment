@@ -20,4 +20,6 @@ const withdrawalRoute /**Router */ = express.Router();
 withdrawalRoute.route('/withdraw')
     .post(ValidateToken.validateToken, withdrawalController.withdraw);
 
+withdrawalRoute.route("/getwithdrawablebalance")
+    .get(ValidateToken.validateToken, withdrawalController.getWithdrawableAndPendingBalance);
 module.exports = {withdrawalRoute};
