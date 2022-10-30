@@ -78,6 +78,18 @@ class TransactionService /*: implements ITransactionService */ {
         }
         return true;
     } 
+
+    /**
+     * @desc returns transaction's current (fractional) value 
+     * @param {number} daysPassedSinceTransaction => Days passed since transaction was initiated
+     * @param {number} waitPeriod => The number of days transaction needs to mature!
+     * @returns {number} 1 if fractional value is greater than 1, else the fractional value;
+     */
+    #transactionCurrentValue = (daysPassedSinceTransaction /**number */,  waitPeriod 
+    /**number */) /**number */ => 
+            (daysPassedSinceTransaction / waitPeriod) >= 1 ?
+                1: (daysPassedSinceTransaction / waitPeriod);
+    
     
     createTransaction = async (AccountId/*: ObjectId */, transaction /*: Transaction */ ) => {
         try{
@@ -122,8 +134,8 @@ class TransactionService /*: implements ITransactionService */ {
                 transactionObject.days = daysPassedSinceTransaction;
                 const percent /**number */ = 0.01 * transactionObject.investmentId.yieldValue;
                 const waitPeriod = transactionObject.investmentId.waitPeriod;
-                const daysFraction /**number */ = (daysPassedSinceTransaction / waitPeriod) >= 1 ?
-                                                        1 :  (daysPassedSinceTransaction / waitPeriod);
+                const daysFraction /**number */ = this.#transactionCurrentValue(
+                    daysPassedSinceTransaction, waitPeriod);
                 const yieldOverTime /**number */ = daysFraction * (percent);
                 const currentValue /**number */ = transactionObject.amount * (1 + yieldOverTime);
                 transactionObject.currentValue =  +currentValue.toFixed(2);;
@@ -212,7 +224,8 @@ class TransactionService /*: implements ITransactionService */ {
 
             if(daysPassedSinceTransaction >= waitPeriod){
                 const percent /**number */ = 0.01 * transactionObject.investmentId.yieldValue;
-                const daysFraction /**number */ = daysPassedSinceTransaction / waitPeriod;
+                const daysFraction /**number */ = this.#transactionCurrentValue(
+                                        daysPassedSinceTransaction, waitPeriod);
                 const yieldOverTime /**number */ = daysFraction * (percent);
                 const currentValue /**number */ = transactionObject.amount * (1 + yieldOverTime);
                 transactionObject.currentValue =  +currentValue.toFixed(2);

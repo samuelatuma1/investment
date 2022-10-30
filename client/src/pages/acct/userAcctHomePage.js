@@ -491,30 +491,33 @@ withdrawableAndPendingBalState /**
     setWithdrawableAndPendingBalance]
 */
 ,
-
-token /** String */
+withdrawableFormState /**
+    [withdrawalForm, setWithdrawalForm]
+*/,
+token /** String */,
+minimumAmtLeftInAcct /**number */
 })=> {
-
+    
     // States
     const [withdrawalForm /**
         amount: 0,
         currency: string*/, 
-        setWithdrawalForm /**Funct<T, T> */ ] = useState({
-        amount: 0,
-        currency: currency
-    })
+        setWithdrawalForm /**Funct<T, T> */ ] = withdrawableFormState;
+
+    
 
     const [status, setStatus] = useState(true);
 
     const withdrawalRequestRef = useRef(null);
     
-    const [ _ /**{[key: string], {
+    const [ withdrawableAndPendingBalanceState  /**{[key: string], {
                 "availableWithdrawableBalance": number,
             "pendingWithdrawableBalance": number
             }} */,
          setWithdrawableAndPendingBalance /**Funct<T, T> */]  = withdrawableAndPendingBalState;
 
-    const [amtWithdrawn /** numString */, setAmtWithdrawn /**Funct<T, T> */] = useState(withdrawalForm.amount.toLocaleString());
+    const [amtWithdrawn /** numString */, setAmtWithdrawn /**Funct<T, T> */] = useState(
+        withdrawalForm.amount.toLocaleString());
 
     // End of states
 
@@ -529,17 +532,23 @@ token /** String */
      * desc updates Withdrawable And Pending Balance to reflect most recent withdrawal
      */
     function updateWithdrawableAndPendingBalance() /** void */{
-        setWithdrawableAndPendingBalance(prevState => {
-            const clonedWithdrawalBalances  /**{[key: string], {
-                "availableWithdrawableBalance": number,
-              "pendingWithdrawableBalance": number
-            }} */ = {...prevState};
-            clonedWithdrawalBalances[currency]
-                .availableWithdrawableBalance -= parseFloat(withdrawalForm.amount);
-            clonedWithdrawalBalances[currency]
-                .pendingWithdrawableBalance += parseFloat(withdrawalForm.amount);
-            return clonedWithdrawalBalances
-        })
+        // setWithdrawableAndPendingBalance(prevState => {
+        //     const clonedWithdrawalBalances  /**{[key: string], {
+        //         "availableWithdrawableBalance": number,
+        //       "pendingWithdrawableBalance": number
+        //     }} */ = {...prevState};
+        //     clonedWithdrawalBalances[currency].availableWithdrawableBalance = minimumAmtLeftInAcct;
+        //     clonedWithdrawalBalances[currency]
+        //         .pendingWithdrawableBalance += parseFloat(withdrawalForm.amount);
+        //     return clonedWithdrawalBalances
+        // })
+
+        let currentValue = withdrawableAndPendingBalanceState;
+        currentValue[currency].pendingWithdrawableBalance += parseFloat(withdrawalForm.amount);
+        currentValue[currency].availableWithdrawableBalance = minimumAmtLeftInAcct;
+
+
+        setWithdrawableAndPendingBalance(currentValue);
     }
 
     /**
@@ -612,7 +621,7 @@ token /** String */
                 </div>
                 <label htmlFor="currency">
                     Currency
-                    <input defaultValue={withdrawalForm.currency} name="currency"/>
+                    <input value={withdrawalForm.currency} name="currency"/>
                 </label>
 
                 <label htmlFor="amount">
@@ -621,18 +630,19 @@ token /** String */
                     name="amount"
                     type="number"
                     max={
-                        withdrawableAndPendingBalance
-                        ["availableWithdrawableBalance"]
+                        withdrawalForm['amount']
                     }
                     min={1}
+                    step={0.001}
                     required={true}
-                    value={withdrawalForm.amount}
-                    onChange={updateWithdrawalFormAction}
+                    value={withdrawalForm.amount > minimumAmtLeftInAcct ? 
+                        withdrawalForm.amount : 0 }
+                    // onChange={updateWithdrawalFormAction} // Required if user can decide amount he wants to withdraw
                     />
                 </label>
                 <input type="checkbox" required={true} />
                 <label> I confirm I want to withdraw { ' '}
-                {withdrawalForm['amount']
+                {Math.abs(withdrawalForm['amount'])
                     .toLocaleString("en-US")} {currency}
                 </label>
                     <br />
@@ -648,6 +658,8 @@ token /** String */
 }
 
 const RequestWithdrawal = (props) => {
+    // constants
+    const minimumAmtLeftInAcct = 0.1;
     // States
     const toggleRef = useRef();
     const User /*: UserModel */= props.user || {};
@@ -662,6 +674,14 @@ const RequestWithdrawal = (props) => {
 
     const [currentCurrency /** String */, 
         setCurrentCurrency /** Funct<T, T> */]  = useState("");
+
+    const [withdrawalForm /**
+    amount: 0,
+    currency: string*/, 
+    setWithdrawalForm /**Funct<T, T> */ ] = useState({
+        amount: 0,
+        currency: currentCurrency
+    });
     const activeBtnRefs = useRef([]);
 
     const formDisplayRef = useRef(null);
@@ -690,9 +710,9 @@ const RequestWithdrawal = (props) => {
                 res.withdrawableAndPendingBalance);
 
             // set currency to something other than an empty string
-            for(const curr /** String */ in withdrawableAndPendingBalance){
-                setCurrentCurrency(c => curr);
-            }
+            // for(const curr /** String */ in withdrawableAndPendingBalance){
+            //     setCurrentCurrency(c => curr);
+            // }
             
         } else{
             alert("an error occurred");
@@ -714,6 +734,11 @@ const RequestWithdrawal = (props) => {
 
         // populate available and pending withdrawal balance
         setCurrentCurrency(c => currencyName);
+        
+        setWithdrawalForm(prevVal => ({
+            amount:  withdrawableAndPendingBalance[currencyName]["availableWithdrawableBalance"] - minimumAmtLeftInAcct,
+            currency: currencyName
+        }))
     }
 
     function toggleFormDisplayAction(e /**Event */) /**void */{
@@ -804,6 +829,8 @@ const RequestWithdrawal = (props) => {
                                                  setWithdrawableAndPendingBalance]
                                                 }
                                                 token={token}
+                                                withdrawableFormState={[withdrawalForm, setWithdrawalForm]}
+                                                minimumAmtLeftInAcct = {0.1}
                                                 />
                                         </div>
                                       </main>

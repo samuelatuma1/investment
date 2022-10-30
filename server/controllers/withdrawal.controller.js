@@ -80,8 +80,8 @@ class WithdrawalController{
      * @params {}, @query {}
      * @returns {{
             [key: string]: {
-                availableWithdrawableBalance: number;
-                pendingWithdrawableBalance: number;
+                availableWithdrawableBalance: number,
+                pendingWithdrawableBalance: number
             }}
     */
     getWithdrawableAndPendingBalance = async (req /**Request*/, res /**Response */) => {
