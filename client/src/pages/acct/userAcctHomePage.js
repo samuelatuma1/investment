@@ -347,7 +347,8 @@ const RequestFundAccount = (props) => {
             const createTransactionRes /**: TransactionObject */ = await createTransactionReq.json();
             setTransactionForm({
                 desc: "",
-                investmentId: ""
+                investmentId: "",
+                amount: 0
             })
             // Display success message
             hideSuccessRef.current.classList.remove("hide");

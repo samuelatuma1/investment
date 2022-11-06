@@ -13,8 +13,8 @@ import { MdEmail, MdDescription } from 'react-icons/md';
 
 // Loading State
 import {Loading} from "../../components/loading.js";
-
-import {BsCashCoin, BsFillCalendarRangeFill} from "react-icons/bs"
+import {FaRegMoneyBillAlt} from "react-icons/fa";
+import {BsCashCoin, BsFillCalendarRangeFill, BsCalendar2Date} from "react-icons/bs"
 import {BiHide, BiTimeFive } from "react-icons/bi";
 import {GiMoneyStack} from "react-icons/gi";
 import {AiFillMinusSquare, AiOutlineTransaction, AiOutlineUser} from "react-icons/ai";
@@ -78,7 +78,7 @@ const CreateInvestment /**: ReactComponent */ = props => {
         yieldValue:0,
         waitPeriod: 0,
         desc: "No description",
-        currency: "currency"
+        currency: "dollars"
     });
 
     /**
@@ -695,20 +695,389 @@ const RequestFundAccount = (props) => {
     </div>)
 }
 
+/**
+ * {
+    "_id": "635ebdb27c7648eb991fc1c0",
+    "acctId": {
+      "_id": "632e039ea2e0889b2033ffd5",
+      "acctHolderId": "632e039ea2e0889b2033ffd2",
+      "acctTransactions": [],
+      "__v": 0
+    },
+    "userId": {
+      "_id": "632e039ea2e0889b2033ffd2",
+      "fullName": "Samuel Atuma",
+      "email": "atumasaake@gmail.com",
+      "password": "abd63f0a5ba4f8df87602b1377cde0daf3e1e99e9f981d9c632d32750de304c3",
+      "isAdmin": true,
+      "isActive": true,
+      "createdAt": "2022-09-23T19:06:06.147Z",
+      "updatedAt": "2022-09-23T19:06:06.147Z",
+      "__v": 0
+    },
+    "amount": 469199.9,
+    "currency": "pula",
+    "status": "pending",
+    "viewed": "seen",
+    "createdAt": "2022-10-30T18:08:50.165Z",
+    "updatedAt": "2022-10-30T18:11:25.079Z",
+    "__v": 0
+  }
+ */
 
-const RequestWithdrawal = (props) => {
+/**
+ * 
+ * @param {*} param0 
+ * @returns 
+ */
+const UpdateWithdrawal = ({withdrawal /**Withdrawal */, token /**String */ }) => {
+    const formSubmissionResponse /**Ref */= useRef(null); 
+    const [withdrawalData /**Withdrawal */, 
+    setWithdrawal /**Funct<T, T> */] = useState(withdrawal);
+    // States
+    const withdrawalDetailsRef /**Ref */ = useRef(null);
+    const [mail /**{[Key: string]: string} */, setMail /**Funct<T, T> */] = useState({
+        to: withdrawal.userId.email,
+        subject: "Update on withdrawal",
+        html: "..."
+    });
+    const [withdrawalForm /** {[Key: String]: String} */, 
+    setWithdrawalForm /**Funct<T, T> */] = useState({
+        viewed: withdrawal.viewed,
+        status: withdrawal.status
+    });
+    const [loading /** boolean */, setLoading /**Funct<T, T> */] = useState(false);
+    // Events
+    const toggleWithdrawalDetails = (e /**EventObject */) /**Void */=> {
+        withdrawalDetailsRef.current.classList.toggle("hide");
+    }
+    function updateMailAction(e /**EventObject */) /**: void */{
+        setMail(currMailService => ({...currMailService, 
+            [e.target.name]: e.target.value}))
+    }
+    function updateWithdrawalForm(e /**EventObject */) /** Void */{
+        // Required just to reload the component
+        setWithdrawalForm(currFormVal => ({...currFormVal,
+        [e.target.name]: e.target.value}))
+
+        // Here, withdrawal data is what is sent back with the form
+        withdrawal[e.target.name] = e.target.value;
+    }
+    async function submitWithdrawalFormAction(e /**EventObject */) /**void */{
+        e.preventDefault();
+
+        // Arrange data to be submitted with form (Note withdrawal is gotten from withdrawal, not withdrawalForm)
+        const {
+            viewed /** String */,
+            status /** String */
+        } = withdrawal
+        
+        const form /** {[Key: String]: {[Key: String]: String}} */ = {
+            mail: mail,
+            withdrawal: {viewed, status}
+        }
+        const url /**: string */ = `/withdrawal/updatewithdrawal/${withdrawal._id}`;
+        // Act
+        setLoading(true)
+        const req /**Request */ = await fetch(url, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: token
+            },
+            body: JSON.stringify(form)
+        });
+        if(req.ok){
+            setLoading(false)
+            // show formSubmission response
+            formSubmissionResponse.current.classList.remove("hide");
+            const response /** Response */ = await req.json();
+
+        }
+
+    }
+
+    function hideFormSubmissionResponse(e /**EventObject */) /*void*/{
+        formSubmissionResponse.current.classList.add("hide");
+    }
+
+    return (
+        loading ? <Loading />:
+        <div className="withdrawalUpdateDiv">
+            <h3 className="withdrawalUpdateh3">
+                {withdrawal.amount}{withdrawal.currency} by {withdrawal.userId.fullName}
+                <button className="goldBtn" 
+                onClick={toggleWithdrawalDetails}>
+                    Details
+                </button>
+                
+            </h3>
+            <div className="withdrawalDetails hide" 
+            ref={withdrawalDetailsRef}>
+                <div className="details">
+
+                    <main>
+                        <h4>
+                        Requested Withdrawal
+                             <FaRegMoneyBillAlt />
+                        </h4>
+                        <p>
+                            {withdrawal.amount}{withdrawal.currency}
+                        </p>
+                    </main>
+
+                    <main>
+                        <h4>
+                            Requested By
+                             <AiOutlineUser />
+                        </h4>
+                        <p>
+                            {withdrawal.userId.fullName}
+                        </p>
+                    </main>
+
+                    
+                    <main>
+                        <h4>
+                            Email
+                             <MdEmail />
+                        </h4>
+                        <p>
+                            {withdrawal.userId.email}
+                        </p>
+                    </main>
+
+                    <main>
+                        <h4>
+                            Status
+                        </h4>
+                        <p>
+                            {withdrawal.status}
+                        </p>
+                    </main>
+
+                    
+                    <main>
+                        <h4>
+                            Date of Request
+                            <BsCalendar2Date />
+                        </h4>
+                        <p>
+                            {withdrawal.createdAt}
+                        </p>
+                    </main>
+                </div>
+                <form className="updateWithdrawalForm" onSubmit={submitWithdrawalFormAction}>
+                    <h3>Send mail and update withdrawal</h3>
+
+                    <div className="withdrawalMail">
+                        <h4>Email</h4>
+                        <label htmlFor="subject">
+                            Email Subject:
+                            <input 
+                            type="text"
+                            value={mail.subject}
+                            name="subject"
+                            onChange={updateMailAction} />
+                        </label>
+
+                        <label htmlFor="html">
+                            Email Body (Leave as ... if you don't want to send a mail):
+                            <textarea 
+                            type="text"
+                            value={mail.html}
+                            name="html"
+                            onChange={updateMailAction} />
+                        </label>
+                    </div>
+
+                    <div className="withdrawalUpdateFields">
+                        <h4>Withdrawal Details</h4>
+
+                        <label htmlFor="status">
+                            Update Status:
+                            <select 
+                            name="status"
+                            value={withdrawal.status}
+                            onChange={updateWithdrawalForm}>
+                                <option value={"approved"} 
+                                default={withdrawal.status === "approved"}>
+                                    Approved
+                                </option>
+                                <option value={"pending"} 
+                                default={withdrawal.status === "pending"}>
+                                    Pending
+                                </option>
+
+                                <option value={"rejected"} 
+                                default={withdrawal.status === "rejected"}>
+                                    Rejected
+                                </option>
+                            </select>
+                        </label>
+
+                        <label htmlFor="viewed">
+                            Set viewed by admin:
+                            <select 
+                            name="viewed"
+                            value={withdrawal.viewed}
+                            onChange={updateWithdrawalForm}>
+                                <option value={"seen"} 
+                                default={withdrawal.viewed === "seen"}>
+                                    Mark as Seen
+                                </option>
+                                <option value={"not seen"} 
+                                default={withdrawal.viewed === "not seen"}>
+                                    Mark as Not Seen
+                                </option>
+
+                            </select>
+                        </label>
+
+
+                    </div>
+                    <p className="withDrawalFormSubmissionResponseP hide" ref={formSubmissionResponse}>
+                        Withdrawal was updated successfully
+                        <button type="button" onClick={hideFormSubmissionResponse}>
+                            <BiHide />
+                        </button>
+
+                    </p>
+                    <button>Update withdrawal details</button>
+                </form>
+            </div>
+        </div>
+    );
+}
+
+/**
+ * @desc Component for managing retrieval and update of withdrawals
+ * @param {*} props 
+ * @returns 
+ */
+const RetrieveAndUpdateWithdrawals = (props) => {
+    /** States */
+    const [loading, setLoading] = useState(false);
+    const User /*: UserModel */= props.user || {};
+
+    const [withdrawals /**Array<Withdrawal> */, 
+        setWithdrawals /**Funct<T, T> */] = useState([]);
+
+    const [withdrawalsViews /** Set */, 
+        setWithdrawalsViews /**Funct<T, T> */] = useState(new Set());
+    const [currView /** String */, setCurrView /**Funct<T, T> */] = useState("")
+    const [withdrawalsForCurrView /**Array<Withdrawal> */,
+        setWithdrawalsForCurrView  /** Funct<T, T */] = useState([]);
+
+    const token  /* String */= "Bearer " + User.token || "";
     const toggleRef = useRef();
+
+    // view manager
+    const viewRefs /**:Ref */ = useRef([]);
+    /**End of States */
+
+    /** Effects */
+    
+    useEffect(() => {
+        getAllWithdrawals()
+    }, [])
+
+    useEffect(() => {
+        filterByView(currView);
+    }, [currView])
+
+    async function getAllWithdrawals() /** void */{
+        setLoading(true);
+        const getWithdrawalsReq /** Request */ = await fetch("/withdrawal/getwithdrawals", {
+            method: "GET",
+            headers: {
+                Authorization: token
+            }
+        });
+        if(getWithdrawalsReq.ok){
+             setLoading(false);
+             const getWithdrawals /**Array<Withdrawal> */ = await getWithdrawalsReq.json();
+
+             // get available views
+             const allViews /**Set<String> */ = new Set(getWithdrawals.map(withdrawal => withdrawal.viewed));
+
+             // update withdrawalsView and withdrawals
+             setWithdrawalsViews(allViews);
+             setWithdrawals(getWithdrawals);
+        }
+
+    }
+
+
+    //Events
 
     function toggleRefDisplay(e){
         toggleRef.current.classList.toggle("hide");
     }
+
+    /**
+     * 
+     * @param {String} view 
+     */
+    function filterByView(view /**String */) /**void */{
+        const currViewWithdrawals = withdrawals.filter(
+            withdrawal /**Withdrawal */ => withdrawal.viewed === view
+        );
+        setWithdrawalsForCurrView(currViewWithdrawals);
+    }
+
+    function showView(e /**EventObject */) /**:Void */{
+        // Remove clicked class from all viewRefs
+        viewRefs.current.forEach(view /**HTMLElement */ => {
+            view.classList.remove("clicked");
+        })
+        // Add to only current view
+        const id /**number */= parseInt(e.target.id); 
+        viewRefs.current[id].classList.add("clicked");
+        
+        const btnCurrView /** String */  = e.target.name ;
+        setCurrView(btnCurrView);
+        
+    }
+
     return (<div className="container">
         <h3 className="containerDesc">
-            View Transaction History
+            Retrieve and Update Withdrawals
             <button onClick={toggleRefDisplay}>Display</button>
         </h3>
         <main className="toggleRef" ref={toggleRef}>
-            Hello, world
+            {
+                loading ? 
+                <Loading />: 
+                <div>
+                    <div className="withdrawalView">
+                        {
+                            // Handle view to display
+                            Array.from(withdrawalsViews)
+                                .map((view, idx) => (
+                                    <button 
+                                    id={idx}
+                                    key={idx}
+                                    name={view}
+                                    ref={btn => viewRefs.current[idx] = btn}
+                                    onClick={showView}>
+                                        {view}
+                                    </button>
+                                ))
+                        }
+                    </div>
+                    {
+                        withdrawalsForCurrView.map(
+                            (withdrawal, idx) => (
+                                <div key={idx}>
+                                   <UpdateWithdrawal withdrawal={withdrawal} 
+                                   token={token}/>
+                                </div>
+                            )
+                        )
+                    }
+                </div>
+            }
         </main>
     </div>)
 }
@@ -725,8 +1094,7 @@ const UserAdminComponent /*: ReactComponent */ = (props) => {
     return (<div className="userAcctHomePage">
         <ViewTransactionHistory user={User}/>
         <UpdatePendingTransactions user={User}/>
-        <RequestWithdrawal user={User}/>
-        <RequestWithdrawal user={User}/>
+        <RetrieveAndUpdateWithdrawals user={User}/>
        
     </div>)
     

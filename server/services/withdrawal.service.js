@@ -41,6 +41,21 @@ class IWithdrawalService {
      */
     getAllWithdrawableAndPendingBalance = async (withdrawableTransactions /**Array<Transaction> */,
         acctId /**ObjectId */) => {}
+
+    
+    /**
+     * @returns {Promise<Array<Withdrawal>>} all withdrawals 
+     */
+     getAllWithdrawals = async () => {}
+
+     /**
+     * 
+     * @param {ObjectId} withdrawalId 
+     * @param {{[Key: String]: String}} updatedDTO 
+     * @returns {Promise} 
+     */
+    updateWithdrawal = async (withdrawalId /**ObjectId */, 
+    updatedDTO /** {[Key: String]: String} */) /**Query<> */=> {}
 }
 
 class WithdrawalService {
@@ -239,6 +254,36 @@ class WithdrawalService {
 
         return currencyWithdrawableDetails;
     }
+
+    /**
+    
+     * @returns {Promise<Array<Withdrawal>>}all withdrawals 
+     */
+    getAllWithdrawals = async () /**Promise<Array<Withdrawal>>*/ => {
+        return await Withdrawal.where().populate("acctId").populate("userId");
+    }
+
+    /**
+     * 
+     * @param {ObjectId} withdrawalId 
+     * @param {{[Key: String]: String}} updatedDTO 
+     * @returns {Promise} 
+     */
+    updateWithdrawal = async (withdrawalId /**ObjectId */, 
+    updatedDTO /** {[Key: String]: String} */) /**Query<> */=> 
+    {
+        const updateWithdrawalResponse /**var */= await Withdrawal
+            .findByIdAndUpdate(withdrawalId, updatedDTO);
+
+        // update each field in updatedDTO
+        for(const updatedField /**String */ in updatedDTO){
+            updateWithdrawalResponse[updatedField] = updatedDTO[updatedField];
+        }
+
+        console.log("UPDATED WITHDRAWAL => ", updateWithdrawalResponse);
+        return updateWithdrawalResponse;
+    }
+
 }
 
 module.exports = {WithdrawalService, IWithdrawalService};

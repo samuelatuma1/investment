@@ -24,9 +24,15 @@ const WithdrawalSchema /**MongooseSchema */ = new mongoose.Schema({
         type: String,
         enum: ["pending", "approved", "rejected"],
         default: "pending"
+    },
+    viewed: {
+        type: String,
+        enum: ["seen", "not seen"],
+        default: "not seen"
     }
 }, {
-    timestamps: true
+    timestamps: true,
+    strict: true
 });
 
 const Withdrawal = mongoose.model("Withdrawal", WithdrawalSchema);

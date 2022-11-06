@@ -10,10 +10,17 @@ const {WithdrawalService} = require("../services/withdrawal.service.js");
 
 const {WithdrawalController} = require("../controllers/withdrawal.controller.js");
 
+
+const mailServiceProvider = process.env.service;
+const email_username = process.env.email_username;
+const email_password = process.env.email_password; 
+
 const withdrawalController /**WithdrawalController*/ = new WithdrawalController(
     new WithdrawalService(), 
     new TransactionService(),
-    new AccountService()
+    new AccountService(),
+    new AuthService(), 
+    new Mail(mailServiceProvider, email_username, email_password)
 )
 const withdrawalRoute /**Router */ = express.Router();
 
@@ -22,4 +29,12 @@ withdrawalRoute.route('/withdraw')
 
 withdrawalRoute.route("/getwithdrawablebalance")
     .get(ValidateToken.validateToken, withdrawalController.getWithdrawableAndPendingBalance);
+
+withdrawalRoute.route('/getwithdrawals')
+    .get(ValidateToken.validateToken, withdrawalController.getAllWithdrawals);
+
+withdrawalRoute.route('/updatewithdrawal/:withdrawalId')
+    .put(ValidateToken.validateToken, withdrawalController.updateWithdrawal);
+
 module.exports = {withdrawalRoute};
+
