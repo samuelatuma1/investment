@@ -122,9 +122,7 @@ input:hover, select:hover{
     font-weight: bolder;
 }
 
-.investmentOptionForm .projection{
-    
-}
+
 
 div.userTransaction{
     margin: 20px 5px;
@@ -239,6 +237,13 @@ input[type=checkbox]{
     color: teal;
     display: flex;
     align-items: center;
+}
+section.statusBtns .clickedInvestmentStatusBtn{
+    background-color: white;
+    color: black;
+    border: 1px solid black;
+    box-shadow: 0px 0px 2px 0px black;
+
 }
 @media screen and (min-width: 700px){
     .container{

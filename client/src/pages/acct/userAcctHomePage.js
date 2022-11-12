@@ -16,7 +16,7 @@ import {AiFillMinusSquare, AiFillPlusSquare,  AiOutlineLoading3Quarters, AiOutli
 import {FiArrowUp} from "react-icons/fi";
 import {FaMoneyBillAlt, FaUserAlt} from "react-icons/fa";
 import {GrStatusGood, GrDocumentNotes} from "react-icons/gr";
-import {BsBarChartFill, BsCashCoin, BsCoin} from "react-icons/bs";
+import {BsBarChartFill, BsCashCoin, BsCoin, BsCalendar2Date} from "react-icons/bs";
 import {FcLineChart, FcComboChart} from "react-icons/fc";
 import {BiHide} from "react-icons/bi";
 import {AiOutlineUser, AiFillMoneyCollect} from "react-icons/ai";
@@ -68,7 +68,7 @@ import {Loading} from "../../components/loading.js";
  * @returns JSX
  */
 const ViewTransactionHistory = (props) => {
-    const toggleRef = useRef();
+    // Prop values
     const User /*: UserModel */= props.user || {};
     const token  /* JWTToken */= "Bearer " + User.token || "";
 
@@ -77,7 +77,8 @@ const ViewTransactionHistory = (props) => {
     const [userTransactions, setUserTransactions] = useState([]);
     const [currStatus /**string */, setCurrStatus /**Funct<T, T> */] = useState("");
     const [currStatusTransactions /**Array<TransactionModel> */, setCurrStatusTransactions /** Funct<T, T> */] = useState([]);
-
+    const toggleRef = useRef();
+    const transactionStatusRefs = useRef([]);
 
     // Effects 
     useEffect(() => {
@@ -119,6 +120,16 @@ const ViewTransactionHistory = (props) => {
         // get status to update to
         const status /**string*/ = e.target.id;
         setCurrStatus(prev => status);
+
+        // Set button to active
+        const className /**: String */ = "clickedInvestmentStatusBtn";
+        const btnIdx /**number */ = parseInt(e.target.name);
+
+        transactionStatusRefs.current.forEach( btn /** HTMLElement */ => {
+            btn.classList.remove(className);
+        })
+        
+        transactionStatusRefs.current[btnIdx].classList.add(className);
     }
 
     return (
@@ -129,9 +140,26 @@ const ViewTransactionHistory = (props) => {
         </h3>
         <main className="toggleRef" ref={toggleRef}>
             <section className="statusBtns">
-                <button id="pending" onClick={updateTransactionsStatus}>Pending <GrStatusGood /></button>
-                <button id="approved" onClick={updateTransactionsStatus}>Approved</button>
-                <button id="rejected" onClick={updateTransactionsStatus}>Rejected</button>
+                <button id="pending"
+                name="0"
+                ref={btn => transactionStatusRefs.current[0] = btn}
+                onClick={updateTransactionsStatus}>
+                    Pending
+                </button>
+
+                <button id="approved" 
+                name="1"
+                ref={btn => transactionStatusRefs.current[1] = btn}
+                onClick={updateTransactionsStatus}>
+                    Approved
+                </button>
+
+                <button id="rejected" 
+                name="2"
+                ref={btn => transactionStatusRefs.current[2] = btn}
+                onClick={updateTransactionsStatus}>
+                    Rejected
+                </button>
             </section>
             {
                 currStatusTransactions.length > 0 ? currStatusTransactions.map(transaction /**: TransactionModel */ => 
@@ -157,9 +185,31 @@ const ViewTransactionHistory = (props) => {
                             </section>
 
                             <section>
+                                <p>EXPECTED VALUE <FcLineChart /></p>
+                                <h4 style={{color: "teal"}}>
+                                {transaction.expectedValue.toLocaleString('en-US')}{transaction.currency}
+                                </h4>
+                            </section>
+
+                            <section>
                                 <p>CURRENT VALUE <FcLineChart /></p>
                                 <h4 style={{color: "teal"}}>
                                     {transaction.currentValue.toLocaleString('en-US')}{transaction.currency}
+                                    
+                                </h4>
+                            </section>
+
+                            <section>
+                                <p>TRANSACTION DATE <BsCalendar2Date /></p>
+                                <h4>
+                                    {transaction.createdAt}
+                                </h4>
+                            </section>
+
+                            <section>
+                                <p>AVAILABLE FOR WITHDRAWAL  <BsCalendar2Date /></p>
+                                <h4>
+                                    {transaction.availableForWithdrawal}
                                 </h4>
                             </section>
                         </div>

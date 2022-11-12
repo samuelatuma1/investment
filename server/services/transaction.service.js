@@ -113,6 +113,18 @@ class TransactionService /*: implements ITransactionService */ {
 
     /**
      * 
+     * @param {Date} date 
+     * @param {number} days 
+     * @returns 
+     */
+    #addDays = (date /**Date */, days /**number */) /** Date */ => {
+        var result = new Date(date);
+        result.setDate(result.getDate() + days);
+        return result;
+      }
+      
+    /**
+     * 
      * @param {ObjectId} acctId : -> account Id
      * @returns {List<TransactionModel>} for accountId
      */
@@ -138,8 +150,16 @@ class TransactionService /*: implements ITransactionService */ {
                     daysPassedSinceTransaction, waitPeriod);
                 const yieldOverTime /**number */ = daysFraction * (percent);
                 const currentValue /**number */ = transactionObject.amount * (1 + yieldOverTime);
-                transactionObject.currentValue =  +currentValue.toFixed(2);;
+                transactionObject.currentValue =  +currentValue.toFixed(2);
 
+                // Expected Value
+                const expectedValue = transactionObject.amount * (1 + percent);
+                transactionObject.expectedValue = expectedValue;
+
+                // available for withdrawal
+                const dayCreated /** Date */ = transactionObject.createdAt;
+                const availableForWithdrawal /**Date */= this.#addDays(dayCreated, waitPeriod);
+                transactionObject.availableForWithdrawal = availableForWithdrawal;
                 acctTransactions.push(transactionObject);
             }
 

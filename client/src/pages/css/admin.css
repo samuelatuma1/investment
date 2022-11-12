@@ -131,3 +131,7 @@
 .withdrawalDetails main{
     margin-bottom: 10px;
 }
+
+.withDrawalFormSubmissionResponseP {
+    color: teal;
+}
