@@ -8,7 +8,13 @@ require("dotenv").config()
 const app = express()
 
 // Security Setup
-app.use(helmet())
+app.use(helmet());
+
+// app.use(helmet({
+//     crossOriginResourcePolicy: false,
+//     policy: "cross-origin"
+//   }))
+
 
 // access cookies
 app.use(cookieParser())
@@ -43,6 +49,31 @@ app.use("/investment", investmentRoute);
 const {withdrawalRoute} = require("./routes/withdrawal.route.js");
 app.use("/withdrawal", withdrawalRoute);
 
+const {homeRoute} = require("./routes/home.route.js");
+app.use("/home", homeRoute);
 
 
+// Testing uploading images
+const {UploadImage} = require("./middlewares/uploadimg.middleware");
+
+app.post("/product/upload", new UploadImage().uploadImg().single("introImg"), (request /** Request */, response /** Request */)/** ResponseEntity<> */ => {
+    return response.status(200).json({files: request.file});
+}) 
+
+const fs /**fs */ = require('node:fs/promises');
+app.delete("/product", async (request /**Request */, res /**Response */ ) /**ResponseEntity<> */ => {
+    try{
+        const filepath /**URL */ = request.body.url;
+        await fs.unlink(filepath);
+        return res.sendStatus(204);
+    } catch(err /**Exception */){
+        console.log(err.message);
+        return res.sendStatus(400);
+
+    }
+})
+
+
+// static files
+app.use("/media", express.static("media"))
 module.exports = {app}

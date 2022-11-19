@@ -9,7 +9,7 @@
 .containerDesc {
     display: flex;
     align-items: center;
-    justify-content: space-evenly;
+    justify-content: space-between;
 }
 
 .transaction{
@@ -84,8 +84,9 @@ textarea[name=html]{
     min-width: 80%;
     min-height: 150px;
 }
-input:hover, select:hover{
-
+.introForm textarea{
+    min-width: 80%;
+    min-height: 100px;
 }
 
 /* Investment Options */

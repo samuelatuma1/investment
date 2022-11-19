@@ -397,7 +397,7 @@ const ViewTransactionHistory = (props) => {
             Manage Investments
             <button onClick={toggleRefDisplay} className="toggleBtn">Display</button>
         </h3>
-        <main className="toggleRef" ref={toggleRef}>
+        <main className="toggleRef hide" ref={toggleRef}>
             <RetrieveAndUpdateInvestments />
         </main>
     </div>)
@@ -689,7 +689,7 @@ const RequestFundAccount = (props) => {
             View Transaction History
             <button onClick={toggleRefDisplay}>Display</button>
         </h3>
-        <main className="toggleRef" ref={toggleRef}>
+        <main className="toggleRef hide" ref={toggleRef}>
             Hello, world
         </main>
     </div>)
@@ -1045,7 +1045,7 @@ const RetrieveAndUpdateWithdrawals = (props) => {
             Retrieve and Update Withdrawals
             <button onClick={toggleRefDisplay}>Display</button>
         </h3>
-        <main className="toggleRef" ref={toggleRef}>
+        <main className="toggleRef hide" ref={toggleRef}>
             {
                 loading ? 
                 <Loading />: 
@@ -1082,6 +1082,180 @@ const RetrieveAndUpdateWithdrawals = (props) => {
     </div>)
 }
 
+const HomePageIntro /**Component */ = (props /**{user: User} */) /**JSX */ => {
+    // Props data
+    const User /*: UserModel */= props.user || {};
+    const token  /* String */= "Bearer " + User.token || "";
+    // States
+    const [loading, setLoading] = useState(false);
+    const [img, setImg] = useState(null);
+    const [intro /**Intro */, setIntro /**Funct<T, T> */] = useState({
+        heading: "Heading for Intro",
+        body: "Intro text goes in here",
+        adminWhatsappNum: "",
+        imgUrl: ""
+    })
+
+
+
+    // Effects
+    useEffect(() => {
+        getIntro();
+    }, [])
+    async function getIntro() /**void */{
+        setLoading(true);
+
+        const introReq /**Request */= await fetch(`/home/intro`)
+        setLoading(false);
+        if(introReq.ok){
+            const res /**Response */ = await introReq.json();
+            if(res.intro !== null){
+                setIntro(res.intro);
+            }
+        }
+    }
+    const toggleRef /**Ref */ = useRef(null);
+
+    
+
+    // End of States
+    function toggleRefDisplay(e){
+        toggleRef.current.classList.toggle("hide");
+    }
+
+    // Events
+    function updateForm(e /**Event */) /**Void */{
+        setIntro(prev => ({...prev, [e.target.name] : e.target.value}));
+    }
+    function updateImage(e /**Event */) /**Void */{
+        console.log(e.target.files[0]);
+        setImg(e.target.files[0]);
+    }
+    async function submitFormAction(e /** Event */) /**void */{
+        e.preventDefault();
+        if(!img){
+            alert("Please, add a valid image");
+        }
+        // create form
+        const formData /**FormData */ = new FormData();
+        formData.append("heading", intro.heading);
+        formData.append("body", intro.body);
+        formData.append("adminWhatsappNum", intro.adminWhatsappNum);
+        formData.append("img", img);
+        console.log(JSON.stringify(formData));
+        // Update Intro form
+        const url /**String */ =  "/home/intro";
+        setLoading(true)
+        const introReq /**Request */ = await fetch(url, {
+            method: "POST",
+            headers: {
+                // "Content-Type": "multipart/form-data",
+                "Authorization": token
+            },
+            body: formData
+        });
+        if(introReq.ok){
+            setLoading(false);
+            const introRes /**Response */ = await introReq.json();
+            setIntro(introRes.intro);
+        }
+    }
+    return (<div className="container">
+    <h3 className="containerDesc">
+        Update Home Page Intro
+        <button onClick={toggleRefDisplay}>Display</button>
+    </h3>
+    <main className="toggleRef hide" ref={toggleRef}>
+        {
+            loading ? <Loading /> :
+            <div className="intro"> 
+                <main className="currIntroMain">
+                    <div>
+                        <h3>Intro Heading</h3>
+                        <p>{intro.heading}</p>
+                    </div>
+
+                    <div>
+                        <h3>Intro Body</h3>
+                        <p>{intro.body}</p>
+                    </div>
+
+                    <div>
+                        <h3>Admin Whatsapp Number</h3>
+                        <p>{intro.adminWhatsappNum}</p>
+                    </div>
+
+                    <div>
+                        <h3>Intro Display Image</h3>
+                        {
+                            !intro.imgUrl ? <p>
+                                No image uploaded yet!
+                            </p> : 
+                            <div className="imageContainer">
+                                
+                                <img crossOrigin="anonymous" src={intro.imgUrl} alt="Intro display"/>
+                            </div>
+                        }
+                    </div>
+
+
+                </main>
+
+                {/* Upload Intro Form */}
+                <main className="introForm">
+                    <form onSubmit={submitFormAction}>
+                        <h2>Update Intro </h2>
+                        <label htmlFor="heading">
+                            <h3>Intro Heading</h3>
+                            <textarea
+                            name="heading"
+                            required={true}
+                            minLength={1}
+                            value={intro.heading}
+                            onChange={updateForm} />
+                        </label>
+                        <label htmlFor="body">
+                            <h3>Intro Body</h3>
+                            <textarea
+                            name="body"
+                            required={true}
+                            value={intro.body} 
+                            onChange={updateForm} />
+                        </label>
+
+                        
+
+                        <label htmlFor="adminWhatsappNum">
+                            <h3>Admin whatsapp Number (Start with country code e.g 234123456789)</h3>
+                            <input
+                            name="adminWhatsappNum"
+                            required={true}
+                            minLength={5}
+                            placeholder={"234123456789"}
+                            value={intro.adminWhatsappNum}
+                            onChange={updateForm} />
+                        </label>
+
+                        <label htmlFor="img">
+                            <h3>Intro Image</h3>
+                            <input 
+                            type="file" 
+                            required={true}
+                            accept="image/*"
+                            name="img"
+                            onChange={updateImage}
+                            />
+                        </label>
+                        <button>Update Intro</button>
+                    </form>
+                </main>
+            </div>
+        }
+    </main>
+    </div>
+    )
+}
+
 /**
  * @route /admin
  * @param {*} props 
@@ -1095,10 +1269,11 @@ const UserAdminComponent /*: ReactComponent */ = (props) => {
         <ViewTransactionHistory user={User}/>
         <UpdatePendingTransactions user={User}/>
         <RetrieveAndUpdateWithdrawals user={User}/>
-       
+       <HomePageIntro user={User} />
     </div>)
     
 }
+
 
 
 const AdminHomePage /*: React Component */= (props) => {

@@ -194,6 +194,7 @@ class WithdrawalService {
 
         return transactionsByCurrency;
     }
+
     /**
      * 
      * @param {string} currency 
@@ -283,6 +284,8 @@ class WithdrawalService {
         console.log("UPDATED WITHDRAWAL => ", updateWithdrawalResponse);
         return updateWithdrawalResponse;
     }
+
+    
 
 }
 

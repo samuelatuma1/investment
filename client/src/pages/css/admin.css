@@ -135,3 +135,13 @@
 .withDrawalFormSubmissionResponseP {
     color: teal;
 }
+
+.imageContainer img{
+    display: block;
+    width: 100%;
+    object-fit: cover;
+}
+.intro{
+    background-color: white;
+    padding: 10px;
+}
