@@ -32,8 +32,18 @@ const HomePageIntro = (props /** {[key: string]: any} */) /**Component */ => {
             imgUrl: "",
             adminWhatsappNum: ""
     })
+
+    const [stats /**Array<{data: String, desc: String}> */, setStats /**Funct<T, T> */] = useState([]);
     const [loading, setLoading] = useState(false);
 
+    const flattenStats = (stats /**{[key: string]: {data: String, desc: String}} */) /** Array<{data: String, desc: String}>*/ => {
+        const flattenedStats /**Array<{data: String, desc: String}> */ = [];
+        for(let statKey /**String */ in stats){
+            const statVal /**{data: String, desc: String} */ = stats[statKey];
+            flattenedStats.push(statVal);
+        }
+        return flattenedStats;
+    }
     // Effects
     useEffect(() => {
         fetchIntro();
@@ -45,6 +55,8 @@ const HomePageIntro = (props /** {[key: string]: any} */) /**Component */ => {
             setLoading(false);
             const introRes /**Intro */ = await introReq.json();
             setIntro(prevIntro => introRes.intro);
+            const statsValues /**Array<{data: String, desc: String}> */ = flattenStats(introRes.stats);
+            setStats(statsValues);
         }
     }
     return (
@@ -89,9 +101,22 @@ const HomePageIntro = (props /** {[key: string]: any} */) /**Component */ => {
                         }
                     </div>
 
+                    
 
                 </section>
+
+                
             }
+            <section className="statsDiv">
+                        {
+                            stats.map(stat => (
+                                <section>
+                                    <h3>{stat.data}</h3>
+                                    <p>{stat.desc}</p>
+                                </section>
+                            ))
+                        }
+            </section>
         </div>
     </>)
 }

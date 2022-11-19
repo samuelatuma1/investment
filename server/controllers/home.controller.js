@@ -1,17 +1,45 @@
 const {IIntroService} = require("../services/homepage.intro.service");
+const {IStatsService} = require("../services/homepage.stats.service");  
+const { IAuthService } = require("../services/auth.service");
 
+
+// DTOS
+const Stats /** {[key: string] : {[key: string] : string}} */ = {
+    stats1: {
+        data: String,
+        desc: String,
+    },
+    stats2: {
+        data: String,
+        desc: String,
+    },
+    stats3: {
+        data: String,
+        desc: String,
+    },
+    stats4: {
+        data: String,
+        desc: String,
+    }
+}
 // @Path("home")
 class HomeController {
     /**IIntroService */
     introService;
+    /** IAuthService */
+    authService;
+    /**IStatsService */
+    statsService
 
     /**
      * @param {IIntroService} introService 
      * @param {IAuthService} authService
+     * @param {IStatsService} statsService
      */
-    constructor( introService /**IIntroService */, authService /**IAuthService */){
+    constructor( introService /**IIntroService */, authService /**IAuthService */, statsService /** IStatsService */){
         this.introService = introService;
         this.authService = authService;
+        this.statsService = statsService;
     }
 
     /** 
@@ -44,7 +72,7 @@ class HomeController {
             const userId /**ObjectId */ = req.userId;
             const isAdmin /*boolean*/ = await this.authService.verifyIsAdminFromId(userId);
             if(!isAdmin)
-                return res.status(403).json({message: "You are not permitted to retrieve withdrawals"});
+                return res.status(403).json({message: "You are not permitted to updload Intro"});
 
             const {heading /**String */, body /**String */, adminWhatsappNum /** String */} = req.body;
             if(!heading || !body || !adminWhatsappNum){
@@ -64,22 +92,69 @@ class HomeController {
     }
 
     /**
+     *  @method POST /stats
+     *  @desc Allows only admin upload stats data
+     *  @protected (userId in req.userId | admin access required)
+     *  @param {{body: Stats}} req,
+     *  @param {{status: Stats}} res, 
+     * @returns {Response<Stats>}
+     */
+    createStats = async ( req /**Request */, res /**Response */) /**ResponseEntity<Stats> */ => {
+        try{
+            // Ensure user is admin
+            const userId /**ObjectId */ = req.userId;
+            const isAdmin /*boolean*/ = await this.authService.verifyIsAdminFromId(userId);
+
+            if(!isAdmin)
+                return res.status(403).json({message: "You are not permitted to create stats"});
+            
+            
+            const stats /**Stats */ = req.body;
+            console.log(stats)
+            if(!stats.stats1 || !stats.stats2 || !stats.stats3 || !stats.stats4){
+                return res.status(400).json({stats, error: "Some data missing"})
+            }
+            const savedStats = await this.statsService.saveOne(stats);
+            return res.status(201).json({savedStats});
+        }catch(ex /** Exception */){
+            console.log(ex);
+            return res.status(400).json({error: ex.message});
+        }
+    }
+
+    /**
+      * @method GET /stats
+      * @PROTECTED Accessible to all users
+     *  @desc Returns the current HomePage Stats Document or null
+     *  @returns {Response<Intro, Stats>} returns Intro, with an extra parameter (imgUrl)
+     */
+    getStats = async (req /**Request */, res /**Response */) /**Response<> */ => {
+        try{
+            const stats /**Stats */ = await this.statsService.get();
+            return res.status(200).json({stats});
+        }catch(ex /**Message */){
+            console.log(ex);
+            return res.status(400).json({error: ex.message});
+        }
+    }
+        
+    /**
       * @method GET /intro
       * @PROTECTED Accessible to all users
-     * @desc Returns the current HomePage Intro Document or null
-     * @returns {Response<Intro>} returns Intro, with an extra parameter (imgUrl)
+     *  @desc Returns the current HomePage Intro Document or null
+     *  @returns {Response<Intro, Stats>} returns Intro, with an extra parameter (imgUrl), and Stats
      */
-     getIntro = async (req /**Request */, res /**Response */) /**Response<Intro> */ => {
+     getIntro = async (req /**Request */, res /**Response */) /**Response<Intro, Stats> */ => {
         try{
             const intro /**Intro */ = await this.introService.getIntro(req);
-            return res.status(200).json({intro});
+            const stats /**Stats */ = await this.statsService.get();
+            return res.status(200).json({intro, stats});
         } catch(err /**Exception */){
             return res.status(400).json({error: err.message});
         }
 
      }
 
-    
 }
 
 module.exports = {HomeController};

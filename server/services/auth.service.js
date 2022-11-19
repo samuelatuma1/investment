@@ -4,12 +4,77 @@ const {Mail} = require("./mail.service.js")
 const crypto = require("crypto")
 const {JWTService} = require("./jwt.service.js")
 
+class IAuthService {
+    /**
+     * @desc hashes User Password, saves user taking {email, password, fullName} from req.body
+     * @param req : Request Object
+     * @returns {Promise<savedUser>} Object
+     * @error Throws error if email already exists
+     */
+     async saveUser(req){}
+
+      /**
+     * @desc Takes in JWTToken, and activates User if jwt is valid
+     * @param {JWTToken} token 
+     * @returns {Promise<User>}
+     */
+     verifyEmail = async (token) => {}
+
+     /**
+      * 
+      * @param {String} email 
+      * @param {String} password 
+      * @returns {Promise<User>?}
+      */
+     authenticate = async (email, password) => {}
+
+     /**
+     * 
+     * @param {object} obj : The matching condition
+     * @desc Deletes the first document that matches conditions from db
+     */
+    deleteOne = async (obj) => {}
+
+    /**
+     * uses token, verifies if user is signed in, returns boolean
+     * @param {JWTToken} token 
+     * @returns {Promise<boolean>}
+     */
+     userIsSignedIn = async (token) => {}
+
+     /**
+     * 
+     * @desc checks if a user is admin given a  JWTToken
+     * @param {JWTToken} token JWTToken that would be decrypted to figure out if user is admin
+     * @returns {Promise<boolean>}
+     */
+      userIsAdmin = async (token /**: JWTToken */ ) /*: boolean */ => {}
+
+      /**
+     * @desc checks if a user is admin given an ObjectId
+     * @param {ObjectId} userId The Id of the user
+     * @returns {Promise<boolean>}
+     */
+    verifyIsAdminFromId = async (userId /**: ObjectId */, ) /*: boolean */ => {}
+
+    /**
+     * @desc retrieves user with the given id
+     * @param {ObjectId} userId 
+     * @returns {Promise<User>?}
+     */
+     retrieveUserById = async (userId) => {}
+}
+
+
+
+
+
 class AuthService{
     constructor(){}
     /**
      * @desc hashes User Password, saves user taking {email, password, fullName} from req.body
      * @param req : Request Object
-     * @returns savedUser Object
+     *  @returns {Promise<savedUser>} Object
      * @error Throws error if email already exists
      */
     async saveUser(req){
@@ -29,7 +94,7 @@ class AuthService{
     /**
      * @desc Takes in JWTToken, and activates User if jwt is valid
      * @param {JWTToken} token 
-     * @returns 
+     * @returns {User}
      */
     verifyEmail = async (token) => {
         try {
@@ -70,6 +135,11 @@ class AuthService{
         return deleteCount
     }
 
+    /**
+     * 
+     * @param {JWTToken} token 
+     * @returns {boolean}
+     */
     userIsSignedIn = async (token) => {
         try{
             const decryptedToken /*: {_id: ObjectId...} */ = JWTService.verifyToken(token, process.env.JWT_KEY);
@@ -160,5 +230,5 @@ class AuthService{
     }
 }
 
-module.exports = {AuthService}
+module.exports = {AuthService, IAuthService}
 
