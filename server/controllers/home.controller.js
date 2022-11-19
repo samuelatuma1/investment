@@ -126,7 +126,7 @@ class HomeController {
       * @method GET /stats
       * @PROTECTED Accessible to all users
      *  @desc Returns the current HomePage Stats Document or null
-     *  @returns {Response<Intro, Stats>} returns Intro, with an extra parameter (imgUrl)
+     *  @returns {Response<{stats: Stats?}>} returns Stats or null
      */
     getStats = async (req /**Request */, res /**Response */) /**Response<> */ => {
         try{

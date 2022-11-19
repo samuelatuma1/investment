@@ -145,3 +145,15 @@
     background-color: white;
     padding: 10px;
 }
+.adminStatsSection{
+    background-color: white;
+    padding: 10px;
+}
+.adminStatsSection > .statsHolder{
+    margin: 10px 0px;
+    display: grid;
+    grid-template-columns: 50% 50%;
+}
+.adminStatsSection section{
+    padding-left: 20px;
+}

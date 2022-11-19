@@ -1119,11 +1119,12 @@ const HomePageIntro /**Component */ = (props /**{user: User} */) /**JSX */ => {
     
 
     // End of States
+    
+
+    // Events
     function toggleRefDisplay(e){
         toggleRef.current.classList.toggle("hide");
     }
-
-    // Events
     function updateForm(e /**Event */) /**Void */{
         setIntro(prev => ({...prev, [e.target.name] : e.target.value}));
     }
@@ -1142,7 +1143,6 @@ const HomePageIntro /**Component */ = (props /**{user: User} */) /**JSX */ => {
         formData.append("body", intro.body);
         formData.append("adminWhatsappNum", intro.adminWhatsappNum);
         formData.append("img", img);
-        console.log(JSON.stringify(formData));
         // Update Intro form
         const url /**String */ =  "/home/intro";
         setLoading(true)
@@ -1255,6 +1255,263 @@ const HomePageIntro /**Component */ = (props /**{user: User} */) /**JSX */ => {
     </div>
     )
 }
+const StatsDTO/** {[key: string] : {[key: string] : string}} */ = {
+    stats1: {
+        data: String,
+        desc: String,
+    },
+    stats2: {
+        data: String,
+        desc: String,
+    },
+    stats3: {
+        data: String,
+        desc: String,
+    },
+    stats4: {
+        data: String,
+        desc: String,
+    }
+}
+const HomepageStats /**Component */= (props  /**{user: User} */) /**JSX */ => {
+    // Props data
+    const User /*: UserModel */= props.user || {};
+    const token  /* String */= "Bearer " + User.token || "";
+    const [loading /**boolean */, setLoading /**Funct<T, T> */] = useState(false);
+
+    /**
+     * 
+     */
+    const [stats /** StatsDTO */, setStats /** Funct<T, T> */] = useState({
+        stats1: {
+            data: "Stats Heading 1",
+            desc: "Stats description 1",
+        },
+        stats2: {
+            data: "Stats Heading 2",
+            desc: "Stats description 2",
+        },
+        stats3: {
+            data: "Stats Heading 3",
+            desc: "Stats description 3",
+        },
+        stats4: {
+            data: "Stats Heading 4",
+            desc: "Stats description 4",
+        }
+    })
+
+    const toggleRef /**Ref */ = useRef(null);
+
+    // Effects
+    useEffect(() => {
+        fetchStats();
+    }, [])
+    async function fetchStats() /** void */{
+        const url /** String */ = "/home/stats";
+        setLoading(true);
+        const req /**Request*/ = await fetch(url);
+        setLoading(false);
+        if(req.ok){
+            const statsResp /**Response */ = await req.json();
+            const stats /**StatsDTO */ = statsResp.stats;
+            if(stats !== null){
+                setStats(curr => stats);
+            }
+        }
+
+    }
+    
+    // Events
+    function toggleRefDisplay(e /**Event */) /**void */{
+        toggleRef.current.classList.toggle("hide");
+    }
+    function updateStatsAction(e /** Event */) /**Void */{
+        const currentStat /** String */ = e.target.name;
+        const currentStatKey /** String */ = e.target.id;
+        const updatedStats /** Stats */= {...stats}
+        updatedStats[currentStat][currentStatKey] = e.target.value;
+        setStats(updatedStats);
+    }
+
+    async function submitStatsAction(e /**void */){
+        e.preventDefault();
+        const postStatsUrl /** StatsUrl */ = "/home/stats";
+        const req /**Response */ = await fetch(postStatsUrl, {
+            method: "post",
+            headers: {
+                // "Content-Type": "multipart/form-data",
+                "Authorization": token,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(stats)
+        })
+
+        if(req.ok){
+            alert("Stats Updated Succesfully")
+        } else{
+            alert("An error occured while trying to update stats, please try again");
+        }
+
+    }
+    // Utils
+    const statsToTuple = (stats /**{[Key: String]: {data: String, desc: String}} */) /**Array<Tuple<String, {data: String, desc: String}>> */ => {
+        const flattened /**Array<Tuple<String, {data: String, desc: String}>> */ = [];
+        for(const statKey /**Key */ in stats){
+            // Put only keys with stat in them
+            if(statKey.includes("stats")){
+                const tuple /** Tuple<String, {data: String, desc: String}> */ = [statKey, stats[statKey]];
+                flattened.push(tuple);
+            }
+        }
+        return flattened;
+    }
+    return (
+        <div className="container">
+            <h3 className="containerDesc">
+                 Update Home Page Statistics
+                 <button onClick={toggleRefDisplay}>Display</button>
+            </h3>
+        
+        <main className="toggleRef hide" ref={toggleRef}>
+            
+            <section className="adminStatsSection">
+            <p>
+                    Stats shows users statistics about your company/app.
+                    E.g How many users use your app
+                </p>
+                
+                    <div className="statsHolder">
+                        {statsToTuple(stats).map((stat, idx) => (
+                        <div key={idx}>
+                            <h3>{stat[0]}</h3>
+                            <section>
+                                <h3>Data</h3>
+                                <h4>{stat[1].data}</h4>
+                                <h3>Description</h3>
+                                <p>{stat[1].desc}</p>
+                            </section>
+                        </div>
+                    ))}
+                    </div>
+
+                
+                
+                <form onSubmit={submitStatsAction} method="POST">
+                    <h3>Update Stats</h3>
+                    <br />
+                    <h4>
+                        Update Stats1 
+                    </h4>
+                    <label htmlFor="stats1">
+                        <p>Data</p>
+                        <input 
+                        name="stats1" id="data"
+                        value={stats.stats1.data}
+                        onChange={updateStatsAction}
+                        minLength = {2}
+                        required={true}
+                        />
+                    </label>
+
+                    <label htmlFor="stats1">
+                        <p>Description</p>
+                        <textarea 
+                        name="stats1" id="desc"
+                        value={stats.stats1.desc}
+                        onChange={updateStatsAction}
+                        minLength = {2}
+                        required={true}
+                        />
+                    </label>
+
+
+                    <br />
+                    <h4>
+                        Update Stats2
+                    </h4>
+                    <label htmlFor="stats2">
+                        <p>Data</p>
+                        <input 
+                        name="stats2" id="data"
+                        value={stats.stats2.data}
+                        onChange={updateStatsAction}
+                        minLength = {2}
+                        required={true}
+                        />
+                    </label>
+
+                    <label htmlFor="stats2">
+                        <p>Description</p>
+                        <textarea 
+                        name="stats2" id="desc"
+                        value={stats.stats2.desc}
+                        onChange={updateStatsAction}
+                        minLength = {2}
+                        required={true}
+                        />
+                    </label>
+
+                    <br />
+                    <h4>
+                        Update Stats3
+                    </h4>
+                    <label htmlFor="stats3">
+                        <p>Data</p>
+                        <input 
+                        name="stats3" id="data"
+                        value={stats.stats3.data}
+                        onChange={updateStatsAction}
+                        minLength = {2}
+                        required={true}
+                       
+                        />
+                    </label>
+
+                    <label htmlFor="stats3">
+                        <p>Description</p>
+                        <textarea 
+                        name="stats3" id="desc"
+                        value={stats.stats3.desc}
+                        onChange={updateStatsAction}
+                        minLength = {2}
+                        required={true}
+                        />
+                    </label>
+
+                    <h4>
+                        Update Stats4
+                    </h4>
+                    <label htmlFor="stats4">
+                        <p>Data</p>
+                        <input 
+                        name="stats4" id="data"
+                        value={stats.stats4.data}
+                        onChange={updateStatsAction}
+                        minLength = {2}
+                        required={true}
+                       
+                        />
+                    </label>
+
+                    <label htmlFor="stats4">
+                        <p>Description</p>
+                        <textarea 
+                        name="stats4" id="desc"
+                        value={stats.stats4.desc}
+                        onChange={updateStatsAction}
+                        minLength = {2}
+                        required={true}
+                        />
+                    </label>
+                    <button>Update Stats</button>
+                </form>
+            </section>
+        </main>
+    </div>
+    )
+
+}
 
 /**
  * @route /admin
@@ -1269,7 +1526,10 @@ const UserAdminComponent /*: ReactComponent */ = (props) => {
         <ViewTransactionHistory user={User}/>
         <UpdatePendingTransactions user={User}/>
         <RetrieveAndUpdateWithdrawals user={User}/>
+
+        {/* Home Page Admin */}
        <HomePageIntro user={User} />
+       <HomepageStats user={User} />
     </div>)
     
 }
