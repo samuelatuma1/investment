@@ -2,7 +2,7 @@ const {IIntroService} = require("../services/homepage.intro.service");
 const {IStatsService} = require("../services/homepage.stats.service");  
 const { IAuthService } = require("../services/auth.service");
 const {ICoinRatesService } = require("../services/homepage.coinrates.service");
-
+const { IInvestmentService } = require("../services/investment.service");
 // DTOS
 const Stats /** {[key: string] : {[key: string] : string}} */ = {
     stats1: {
@@ -33,21 +33,26 @@ class HomeController {
     /**ICoinRatesService */
     coinRatesService
 
+    /**IInvestmentService */
+    investmentService
     /**
      * @param {IIntroService} introService 
      * @param {IAuthService} authService
      * @param {IStatsService} statsService
      * @param {ICoinRatesService} coinRateService
+     * @param {IInvestmentService} investmentService
      */
     constructor( 
         introService /**IIntroService */, 
         authService /**IAuthService */, 
         statsService /** IStatsService */,
-        coinRateService /**ICoinRatesService */){
+        coinRateService /**ICoinRatesService */,
+        investmentService /**IInvestmentService */){
         this.introService = introService;
         this.authService = authService;
         this.statsService = statsService;
         this.coinRatesService = coinRateService
+        this.investmentService = investmentService;
     }
 
     /** 
@@ -172,6 +177,21 @@ class HomeController {
             const response /**CoinRates */ = await this.coinRatesService.retrieveCoins();
             return res.status(200).json(response);
         } catch( ex /**Exception */){
+            return res.status(400).json({error: err.message});
+        }
+     }
+
+
+     /**
+      * @method GET /investments
+      * @PROTECTED Accessible to all users
+      * @return {Array<Investment>}
+      */
+     getInvestments = async (req /**Request */, res /**Response */) /**Response<> */ => {
+        try{
+            const investments /**Array<Investment>*/ = await this.investmentService.retrieveInvestments();
+            return res.status(200).json(investments);
+        } catch( ex /**Exception */){ 
             return res.status(400).json({error: err.message});
         }
      }

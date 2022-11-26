@@ -11,8 +11,11 @@ const {HomeController} = require("../controllers/home.controller");
 const {UploadImage} = require("../middlewares/uploadimg.middleware.js");
 
 const { CoinRatesService } = require("../services/homepage.coinrates.service.js");
+const { InvestmentService } = require("../services/investment.service.js");
+
+
 const uploadImageHandler = new UploadImage();
-const home /**HomeController */ = new HomeController(new IntroService(), new AuthService(), new StatsService(), new CoinRatesService());
+const home /**HomeController */ = new HomeController(new IntroService(), new AuthService(), new StatsService(), new CoinRatesService(), new InvestmentService());
 
 homeRoute.route("/intro")
     .post(ValidateToken.validateToken, 
@@ -27,5 +30,7 @@ homeRoute.route("/stats")
 homeRoute.route("/coins")
         .get(home.getCoins);
 
+homeRoute.route("/investments")
+        .get(home.getInvestments);
 module.exports = {homeRoute};
 

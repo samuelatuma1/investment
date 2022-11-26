@@ -4,7 +4,11 @@ import { useState, useEffect } from "react";
 import homePageBackgroundIntroImg from "../../static/home/intro/imageforbg.webp";
 import NavigationBar from "../../components/navigation";
 import { Loading } from "../../components/loading";
-
+import {HiCurrencyDollar} from "react-icons/hi";
+import {FaArrowUp} from "react-icons/fa";
+import {GrNext, GrLineChart} from "react-icons/gr"
+import {TiChartLine} from "react-icons/ti";
+import {BsFillCalendar2CheckFill} from "react-icons/bs";
 // Navigation
 import {Link} from "react-router-dom";
 
@@ -198,12 +202,104 @@ const CoinsRate /**Component */ = (props /** {[key: string]: any} */) /** JSX */
     )
 }
 
+
+const Investments /**Component */ = (props /** {[key: String]: any} */)/** JSX */ => {
+    // States
+    const [loading /**boolean */, setLoading /**Funct<T, T> */] = useState(false);
+    const [investments /**Array<Investment> */, setInvestments /**Funct<T, T> */] = useState([]);
+
+    // Events
+    useEffect(() => {
+        getInvestments();
+    }, [])
+    async function getInvestments() /**void */{
+        setLoading(true);
+        const req /**Request*/ = await fetch("/home/investments");
+
+        setLoading(false);
+        if(req.ok){
+           const investments /**Array<Investment> */ = await req.json();
+           setInvestments(investments);
+        }
+    }
+
+    return (
+        <>
+            {
+                loading ? <Loading /> :
+                <div className="investmentsHomeDiv">
+                    <h2>Start earning now!</h2>
+                    <div className="investmentsHomeDiv">
+                    
+                    {
+                        investments.map((investment, idx) => (
+                            <div className="investmentCardDiv" key={investment._id}>
+                                <section className="headerSection">
+                                    <h4>{investment.desc}</h4>
+                                </section>
+                                
+                                <section className="investmentDetails">
+                                    <section>
+                                        <h5>
+                                            Minimum Amount
+                                            <HiCurrencyDollar />
+                                        </h5>
+                                        <h3>
+                                            {investment.amount.toLocaleString('en-US', {
+                                                    style: 'currency',
+                                                    currency: 'USD',
+                                                })}
+                                        </h3>
+                                    </section>
+
+                                    <section>
+                                        <h5>
+                                            Percent Return 
+                                            <FaArrowUp />
+                                        </h5>
+                                        <h3> 
+                                            { investment.yieldValue}%  
+                                        </h3>
+                                    </section>
+                                </section>
+
+                                <section className="waitPeriod">
+                                        <h5>
+                                            Maximum wait Period 
+                                            <BsFillCalendar2CheckFill />
+                                        </h5>
+                                        <h3> 
+                                            { investment.waitPeriod} days
+                                        </h3>
+                                </section>
+
+                                <section className="investmentSectionBtn">
+                                    <button>
+                                        <a href="./acct/home">
+                                            Start Earning
+                                            <GrLineChart />
+                                            {/* <TiChartLine /> */}
+ 
+                                        </a>
+                                    </button>
+                                </section>
+                            </div>
+                        ))
+                    }
+                </div>
+                </div>
+            }
+        </>
+    )
+}
+
 const HomePage /**Component */ = (props) => {
     return (
     <div>
         <NavigationBar active='' />
         <HomePageIntro />
         <CoinsRate />
+        <Investments />
     </div>)
 }
 
