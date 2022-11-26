@@ -10,8 +10,9 @@ const {HomeController} = require("../controllers/home.controller");
 
 const {UploadImage} = require("../middlewares/uploadimg.middleware.js");
 
+const { CoinRatesService } = require("../services/homepage.coinrates.service.js");
 const uploadImageHandler = new UploadImage();
-const home /**HomeController */ = new HomeController(new IntroService(), new AuthService(), new StatsService());
+const home /**HomeController */ = new HomeController(new IntroService(), new AuthService(), new StatsService(), new CoinRatesService());
 
 homeRoute.route("/intro")
     .post(ValidateToken.validateToken, 
@@ -21,8 +22,10 @@ homeRoute.route("/intro")
 
 homeRoute.route("/stats")
         .get(home.getStats)
-        .post(ValidateToken.validateToken, home.createStats)
+        .post(ValidateToken.validateToken, home.createStats);
 
+homeRoute.route("/coins")
+        .get(home.getCoins);
 
 module.exports = {homeRoute};
 

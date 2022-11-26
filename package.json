@@ -6,7 +6,8 @@
   "scripts": {
     "test": "mocha server/test --timeout 10000",
     "start": "node server/server.js",
-    "dev": "nodemon server/server.js"
+    "dev": "nodemon server/server.js",
+    "tries": "nodemon tries2.js"
   },
   "keywords": [],
   "author": "",
@@ -24,6 +25,7 @@
     "mocha": "^10.0.0",
     "mongoose": "^6.5.1",
     "multer": "^1.4.5-lts.1",
+    "node-fetch": "^2.6.7",
     "nodemailer": "^6.7.8"
   },
   "devDependencies": {

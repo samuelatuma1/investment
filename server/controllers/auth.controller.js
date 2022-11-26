@@ -1,7 +1,9 @@
 "use strict"
 const {validationResult} = require("express-validator")
 
-
+class IAuth {
+    
+}
 class Auth{
     constructor(authService, mailService, accountService){
         this.authService = authService;

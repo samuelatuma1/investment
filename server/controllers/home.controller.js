@@ -1,7 +1,7 @@
 const {IIntroService} = require("../services/homepage.intro.service");
 const {IStatsService} = require("../services/homepage.stats.service");  
 const { IAuthService } = require("../services/auth.service");
-
+const {ICoinRatesService } = require("../services/homepage.coinrates.service");
 
 // DTOS
 const Stats /** {[key: string] : {[key: string] : string}} */ = {
@@ -30,16 +30,24 @@ class HomeController {
     authService;
     /**IStatsService */
     statsService
+    /**ICoinRatesService */
+    coinRatesService
 
     /**
      * @param {IIntroService} introService 
      * @param {IAuthService} authService
      * @param {IStatsService} statsService
+     * @param {ICoinRatesService} coinRateService
      */
-    constructor( introService /**IIntroService */, authService /**IAuthService */, statsService /** IStatsService */){
+    constructor( 
+        introService /**IIntroService */, 
+        authService /**IAuthService */, 
+        statsService /** IStatsService */,
+        coinRateService /**ICoinRatesService */){
         this.introService = introService;
         this.authService = authService;
         this.statsService = statsService;
+        this.coinRatesService = coinRateService
     }
 
     /** 
@@ -152,7 +160,20 @@ class HomeController {
         } catch(err /**Exception */){
             return res.status(400).json({error: err.message});
         }
+     }
 
+     /**
+      * @method GET /coins
+      * @PROTECTED Accessible to all users
+      * @return {CoinRates}
+      */
+     getCoins = async (req /**Request */, res /**Response */) /**Response<CoinRates> */ => {
+        try{
+            const response /**CoinRates */ = await this.coinRatesService.retrieveCoins();
+            return res.status(200).json(response);
+        } catch( ex /**Exception */){
+            return res.status(400).json({error: err.message});
+        }
      }
 
 }

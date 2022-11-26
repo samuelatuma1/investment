@@ -73,6 +73,53 @@ html{
 .statsDiv section{
     padding: 10px 0px;
 }
+
+/* CoinsRate */
+.coinRatesDiv{
+    padding: 20px;
+    
+}
+
+.coinRatesDiv header{
+    color: grey;
+    display: grid;
+    grid-template-columns: 44% 33% 33%;
+}
+.coinRatesDiv section{
+    display: grid;
+    grid-template-columns: 44% 33% 33%;;
+
+}
+.coinRatesDiv img {
+    margin: 0;
+    min-width: 0;
+    width: 24px;
+    height: 24px;
+    object-fit: cover;
+    color: black;
+    display: block;
+}
+.coinRateSection main{
+    display: flex;
+    align-items: center;
+}
+.coinRateSection span{
+    padding-left: 10px;
+    font-weight: bolder;
+}
+.teal{
+   
+    color: rgb(73, 72, 72);
+}
+.coinRatesDiv section main , .coinRatesDiv header{
+    padding: 20px 0px 20px 5px;
+
+}
+.coinRatesDiv section:hover {
+    background-color: aliceblue;
+    cursor: pointer;
+    border-radius: 5px;
+}
 @media screen and (min-width: 767px){
 
     .homePageIntroDiv > section{
@@ -87,6 +134,12 @@ html{
     section.statsDiv{
         grid-template-columns: repeat(4, 25%);
     }
-    
+    .coinRatesDiv h2{
+        text-align: center;
+    }
+    .coinRates{
+        max-width: 70%;
+        margin: auto;
+    }
 }
 

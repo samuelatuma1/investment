@@ -120,12 +120,90 @@ const HomePageIntro = (props /** {[key: string]: any} */) /**Component */ => {
         </div>
     </>)
 }
+const coinsDTO = {
+    "id": String,
+    "symbol": String,
+    "current_price": Number,
+    "market_cap_change_percentage_24h": Number,
+    "image": String,
+    "name": String,
+    "_id": String
+  }
+const CoinsRate /**Component */ = (props /** {[key: string]: any} */) /** JSX */ => {
+    // States
+    const [loading /**boolean */, setLoading /**Funct<T, T> */] = useState(false);
+    const [coins /**Array<coinsDTO> */, setCoins /**Funct<T, T> */] = useState([]);
+
+    // Effects
+    useEffect(() => {
+        getCoins();
+    }, []);
+    async function getCoins(){
+        setLoading(true);
+        const coinsRequest /**Request*/ = await fetch("/home/coins");
+        setLoading(false);
+        if(coinsRequest.ok){
+            const coinsResp /** {coins: Object, _id: String} */ = await coinsRequest.json()
+            setCoins(coinsResp.coins);
+        }
+    }
+
+    return (
+        <>
+            {
+            loading ?
+            <Loading /> : 
+            <div className="coinRatesDiv">
+                <h2>Exchange Rates</h2>
+                <div className="coinRates">
+                    {coins.length > 0 ? <header>
+                        <p>Name</p>
+                        <p >Current Price</p>
+                        <p>24h Change</p>
+                    </header>: <></>}
+                    {
+                        coins.map((coin /** coinsDTO */ , idx /**Number */)=> (
+                            <section className="coinRateSection" key={idx}>
+                                <main>
+                                    <img
+                                    src={coin.image} alt={coin.symbol} />
+                                    <span>
+                                        {coin.id.charAt(0).toUpperCase() + coin.id.slice(1)}
+                                     </span>
+                                    <span style={{color: "grey"}}> {coin.symbol.toUpperCase()}</span>
+                                </main>
+                                <main className="teal" style={{textAlign: "end"}}>
+                                    <span>
+                                    {coin.current_price.toLocaleString('en-US', {
+                                        style: 'currency',
+                                        currency: 'USD',
+                                    })}
+                                    </span>
+                                </main>
+                                <main >
+                                    {
+                                        
+                                        <span style={{color: 
+                                            coin.market_cap_change_percentage_24h > 0 ? "green": "maroon"}}>
+                                            {coin.market_cap_change_percentage_24h}</span>
+                                    }
+                                </main>
+                            </section>
+                        ))
+                    }
+                </div>
+            </div>
+            }
+        </>
+    )
+}
 
 const HomePage /**Component */ = (props) => {
     return (
     <div>
         <NavigationBar active='' />
         <HomePageIntro />
+        <CoinsRate />
     </div>)
 }
 
