@@ -11,6 +11,7 @@ import {TiChartLine} from "react-icons/ti";
 import {BsFillCalendar2CheckFill} from "react-icons/bs";
 // Navigation
 import {Link} from "react-router-dom";
+import imgBg from "../../static/home/img.svg";
 
 // icons
 import {FaUserAlt} from "react-icons/fa";
@@ -79,17 +80,19 @@ const HomePageIntro = (props /** {[key: string]: any} */) /**Component */ => {
                             </p>
                             
                             <div className="authBtns">
-                                <button className="authBtnSignUp">
-                                    <Link to={signUpUrl}>
-                                        <FaUserAlt /> Sign up with Email
-                                    </Link>
-                                </button>
+                                <Link to={signUpUrl}>
+                                    <button className="authBtnSignUp">
+                                            <FaUserAlt /> Sign up with Email
+                                    </button>
+                                </Link>
 
-                                <button className="authBtnSignUp">
-                                    <a href={`${whatsappURLBase}${intro?.adminWhatsappNum}`}>
-                                        <BsFillChatLeftTextFill /> Chat with Representative
-                                    </a>
-                                </button>
+                                <a href={`${whatsappURLBase}${intro?.adminWhatsappNum}`}>
+                                    <button className="authBtnSignUp">
+                                        
+                                            <BsFillChatLeftTextFill /> Chat with Representative
+                                        
+                                    </button>
+                                </a>
                             </div>
                         </main>
 
@@ -151,15 +154,21 @@ const CoinsRate /**Component */ = (props /** {[key: string]: any} */) /** JSX */
             setCoins(coinsResp.coins);
         }
     }
-
+    const bgStyle /**Object<String, String> */= {
+        backgroundImage: `url(${imgBg})`, // SVG Background
+        backgroundSize: "contain",
+        minHeight: "250px",
+        backgroundcolor: "white"
+        
+    }
     return (
         <>
             {
             loading ?
             <Loading /> : 
-            <div className="coinRatesDiv">
+            <div className="coinRatesDiv" style={bgStyle}>
                 <h2>Exchange Rates</h2>
-                <div className="coinRates">
+                <div className="coinRates" >
                     {coins.length > 0 ? <header>
                         <p>Name</p>
                         <p >Current Price</p>
@@ -274,14 +283,16 @@ const Investments /**Component */ = (props /** {[key: String]: any} */)/** JSX *
                                 </section>
 
                                 <section className="investmentSectionBtn">
-                                    <button>
-                                        <a href="./acct/home">
-                                            Start Earning
-                                            <GrLineChart />
-                                            {/* <TiChartLine /> */}
- 
-                                        </a>
-                                    </button>
+                                    <a href="./acct/home">
+                                        <button>
+                                            
+                                                Start Earning
+                                                <GrLineChart />
+                                                {/* <TiChartLine /> */}
+    
+                                            
+                                        </button>
+                                    </a>
                                 </section>
                             </div>
                         ))

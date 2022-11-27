@@ -1,5 +1,5 @@
 const fetch = require("node-fetch");
-
+const fs /**fs */ = require('node:fs/promises');
 const OptionsObject = {
     method: String,
     url: String,
@@ -7,18 +7,57 @@ const OptionsObject = {
     headers: Object,
     body: Object
 }
-const options = {
-    method: 'GET',
-    url: 'https://coingecko.p.rapidapi.com/coins/markets',
-    params: {vs_currency: 'usd', page: '1', per_page: '3', order: 'market_cap_desc'},
-    headers: {
-      'X-RapidAPI-Key': '0bb1103337mshd8f0862afdaeaacp166360jsn72e2bf659005',
-      'X-RapidAPI-Host': 'coingecko.p.rapidapi.com'
-    }
-  };
 
+const FileDTO /**{[Key: String]: String | Number } */=  {
+    
+    fieldname: String,
+    mimetype: String,
+    destination: String,
+    filename: String,
+    path: String,
+    size: Number
+  
+}
 
 class Utils {
+    /**
+     * @desc converts a mongoDB Model to a plain old JavaScript Object
+     * @param {GenericType} model 
+     * @returns {Object}
+     */
+     static convertModelToObject = (model /**T */) /**Object */ => {
+        if(model !== null){
+            return model.toObject()
+        }
+        return null;
+    }
+    /**
+     * @desc returns the image url using request object and the fileobject
+     * @param {Request} req 
+     * @param {FileDTO} img 
+     * @returns path to image url
+     */
+    static getImageUrl = (req /**Request */, img /** img */) /**String */=> {
+        const basePath /**URL */ = req.protocol + "://" + req.get("host") + '/'
+        const imgPath /**String */ = basePath + img.path
+        return imgPath;
+    }
+    /**
+     * @desc deletes file in the designated path
+     * @param {String} filePath 
+     * @returns 
+     */
+    static deleteFile = async (filePath /**String */)/**void */ => {
+        try{
+            
+            await fs.unlink(filePath);
+            
+            return ;
+        } catch(ex /**Exception */){
+            console.log({ex})
+            return ;
+        }
+    }
     /**
      * @desc fetches data 
      * @param {OptionsObject} options 
@@ -51,7 +90,7 @@ class Utils {
     }
 
     /**
-         * 
+         * @desc returns the time difference between time1 and time2 in given unit
          * @param {Date} time1 
          * @param {Date} time2 default new Date()
          * @param {String} unit enum ["d", "h", "m", "s"] default h => hours
@@ -74,7 +113,6 @@ class Utils {
                 case "d":
                     timeDelta = timeDelta /(60 * 60 * 24);
                     break;
-
             }
             return Math.round(timeDelta);
         }

@@ -1096,6 +1096,7 @@ const HomePageIntro /**Component */ = (props /**{user: User} */) /**JSX */ => {
         imgUrl: ""
     })
 
+    const toggleRef /**Ref */ = useRef(null);
 
 
     // Effects
@@ -1114,7 +1115,7 @@ const HomePageIntro /**Component */ = (props /**{user: User} */) /**JSX */ => {
             }
         }
     }
-    const toggleRef /**Ref */ = useRef(null);
+    
 
     
 
@@ -1136,6 +1137,7 @@ const HomePageIntro /**Component */ = (props /**{user: User} */) /**JSX */ => {
         e.preventDefault();
         if(!img){
             alert("Please, add a valid image");
+            return ;
         }
         // create form
         const formData /**FormData */ = new FormData();
@@ -1255,6 +1257,13 @@ const HomePageIntro /**Component */ = (props /**{user: User} */) /**JSX */ => {
     </div>
     )
 }
+
+
+
+
+
+
+
 const StatsDTO/** {[key: string] : {[key: string] : string}} */ = {
     stats1: {
         data: String,
@@ -1512,6 +1521,256 @@ const HomepageStats /**Component */= (props  /**{user: User} */) /**JSX */ => {
     )
 
 }
+const howToEarnDTO = {
+    desc: String,
+    steps: [{title: String, details: String}]
+}
+
+
+const HomePageHowToEarn /** Component */ = (props /**{user: User} */) /**JSX */ => {
+    // Props data
+    const User /*: UserModel */= props.user || {};
+    const token  /* String */= "Bearer " + User.token || "";
+    
+    // States
+    const [loading, setLoading] = useState(false);
+    const [img, setImg] = useState(null);
+    const toggleRef /**Ref */ = useRef(null);
+    const [howToEarnImage /**{imgUrl: String...}*/ , setHowToEarnImage] = useState({imgUrl: ""});
+
+
+    // Effects
+    useEffect(() => {
+        fetchHowToEarnImage()
+    }, [])
+    async function fetchHowToEarnImage() /**Void */{
+        setLoading(true)
+        const howToEarnRequest /** Response */= await fetch("/home/howtoearnimage");
+        setLoading(false);
+        if(howToEarnRequest.ok){
+            const response /**howToEarnImage */= await howToEarnRequest.json();
+            console.log(response);
+            setHowToEarnImage(response.howToEarnImage);
+        }
+    }
+    // Events
+    function toggleRefDisplay(e){
+        toggleRef.current.classList.toggle("hide");
+    }
+
+    function updateImage(e /**Event */) /**Void */{
+        console.log(e.target.files[0]);
+        setImg(e.target.files[0]);
+    }
+
+
+    async function uploadImage(e /**Event */) /**void*/{
+        e.preventDefault();
+        if(!img){
+            alert("Please, add a valid image");
+            return ;
+        }
+        // create form
+        const formData /**FormData */ = new FormData();
+        formData.append("img", img);
+        // Update Intro form
+        const url /**String */ =  "/home/howtoearnimage";
+        setLoading(true);
+        const imageReq /**Request */ = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Authorization": token
+            },
+            body: formData
+        });
+        if(imageReq.ok){
+            setLoading(false);
+            const imageRes /**Response */ = await imageReq.json();
+            setHowToEarnImage(imageRes.howToEarnImage)
+        }
+    }
+
+
+    // How to Earn
+
+    // States
+    const [howToEarn /* howToEarnDTO**/, setHowToEarn /** Funct<T, T> */] = useState({
+        desc: "",
+        steps: [
+            {title: "", details: ""},
+            {title: "", details: ""},
+            {title: "", details: ""},
+            {title: "", details: ""},
+            {title: "", details: ""},
+        ]
+    })
+
+    function updateHowToEarn(newHowToEarn /**howToEarnDTO */ ) /* howToEarnDTO*/{
+        let currentHowToEarn /**howToEarnDTO */= howToEarn;
+        currentHowToEarn.desc = newHowToEarn.desc;
+        const steps /**var */= newHowToEarn.steps || currentHowToEarn.steps;
+        for(let i /**int */ = 0; i < steps.length; i++){
+            currentHowToEarn.steps[i] = steps[i];
+        }
+        return currentHowToEarn;
+    }
+    // Effects
+    useEffect(() => {
+        getHowToEarn()
+    }, [])
+    async function getHowToEarn(){
+        const req /**Request*/ = await fetch("/home/howtoearn");
+        if(req.ok){
+            const newHowToEarn /**howToEarnDTO */ = await req.json();
+            const updatedHowToEarn /* howToEarnDTO*/= updateHowToEarn(newHowToEarn.howToEarn);
+            setHowToEarn(updatedHowToEarn);
+        }
+    }
+
+
+    // Events
+    function updateDescAction(e /**Event */) /** void */{
+        setHowToEarn(prevData => ({...prevData, [e.target.name]: e.target.value}));
+    }
+
+    function updateStepAction(e /**Event */) /** void */{
+        // get index position to change
+        const idxToChange /** number */= parseInt(e.target.name);
+        const updateHowToEarn /** howToEarn */ = {...howToEarn};
+        const keyToChange /** String */ = e.target.id;
+        updateHowToEarn.steps[idxToChange][keyToChange] = e.target.value;
+        setHowToEarn(updateHowToEarn);
+    }
+    function trimSteps(){
+        const toUpdate /**howToEarn */ = {...howToEarn}
+        const updatedSteps /** Array<{title: String, details: String}> */ = [];
+
+        for(let step of toUpdate.steps){
+            if(step.title.trim() !== "" && step.details.trim() !== "")
+                updatedSteps.push(step);
+        }
+        toUpdate.steps = updatedSteps;
+        return toUpdate;
+    }
+    async function updateHowToEarnAction(e /**Event */) /** void */{
+        e.preventDefault();
+        const howToEarnJSON /**JSON<HowToEarnDTO> */= JSON.stringify(trimSteps())
+        const url /** String */= "/home/howtoearn";
+        setLoading(true);
+        const request /**Response */ = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": token
+            },
+            body: howToEarnJSON
+        })
+        setLoading(false);
+        if(request.ok){
+            const response /**HowToEarnDTO */= await request.json();
+            alert("How To Earn Updated Successfully");
+        }
+    }
+    return (<>
+        {
+            loading ? <Loading /> :
+            <div className="container">
+                <h3 className="containerDesc">
+                    Update Home Page How to Earn
+                    <button onClick={toggleRefDisplay}>Display</button>
+                </h3>
+
+                <main className="toggleRef hide" ref={toggleRef}>
+                    <div className="howToEarnImageDiv">
+                        <h3>Current How to earn image</h3>
+                        <section>
+                            {
+                                howToEarnImage.imgUrl !== "" ?
+                                <img crossOrigin="anonymous" src={howToEarnImage.imgUrl}  alt="How to earn image" /> : <h3>
+                                    No image for how To earn uploaded yet
+                                    </h3>
+                            }
+                        </section>
+
+                        <form onSubmit={uploadImage}>
+                            <h3>Update How to Earn Image</h3>
+                            <label htmlFor="img">
+                            <h3>Intro Image</h3>
+                            <input 
+                            type="file" 
+                            required={true}
+                            accept="image/*"
+                            name="img"
+                            onChange={updateImage}
+                            />
+                            <button>Upload Image</button>
+                        </label>
+                        </form>
+
+                    </div>
+                    
+
+                    <form className="howToEarnDiv" onSubmit={updateHowToEarnAction}>
+                        <h3>
+                            Update How To Earn Steps
+                        </h3>
+                        <section>
+                            <h4>Update current How to Earn Heading</h4>
+                            
+                            <label htmlFor="desc">
+                                <textarea 
+                                name="desc"
+                                value={howToEarn.desc}
+                                onChange={updateDescAction}                   
+                                />
+                            </label>
+                        </section>
+                        
+                        <section>
+                            <h3>Update Steps</h3>
+                            {
+                                howToEarn.steps.map((step, idx) => (
+                                    <div key={idx}>
+                                        <h4>Step{idx + 1}</h4>
+                                        <h4>
+                                            Update Step{idx + 1} Title (Optional)
+                                        </h4>
+                                        
+                                        <label>
+                                            <input 
+                                            value={step.title}
+                                            name={idx}
+                                            id="title"
+                                            onChange={updateStepAction}
+                                            />
+                                        </label>
+
+                                        <h4>Update Step{idx + 1} Details (Optional)</h4>
+                                        
+                                        <label>
+                                            <textarea 
+                                            value={step.details}
+                                            name={idx}
+                                            id="details"
+                                            onChange={updateStepAction}
+                                            />
+                                        </label>
+                                    </div>
+                                ))
+                            }
+                        </section>
+                        <button>Update How to Earn</button>
+                    </form>
+                </main>
+
+                
+            </div>
+        }
+    </>
+    )
+    
+
+}
 
 /**
  * @route /admin
@@ -1530,6 +1789,7 @@ const UserAdminComponent /*: ReactComponent */ = (props) => {
         {/* Home Page Admin */}
        <HomePageIntro user={User} />
        <HomepageStats user={User} />
+       <HomePageHowToEarn  user={User} />
     </div>)
     
 }

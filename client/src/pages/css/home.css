@@ -47,10 +47,15 @@ html{
     border-radius: 4px;
     min-height: 24px;
     background-color: #FCD535;
+    width: 100%;
+    font-weight: bolder ;
 
 }
-.authBtns button a{
+.authBtns button {
     color: #181A20;
+}
+.authBtns a{
+    display: block;
     text-decoration: none;
 }
 
@@ -177,8 +182,9 @@ html{
     color: #181A20;
     background-color: #FCD535;
     width: 100%;
+    font-weight: bolder;
 }
-.investmentSectionBtn button a{
+.investmentSectionBtn a{
     color: #181A20;
     text-decoration: none;
     display: flex;

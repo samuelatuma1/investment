@@ -3,6 +3,7 @@ const {IStatsService} = require("../services/homepage.stats.service");
 const { IAuthService } = require("../services/auth.service");
 const {ICoinRatesService } = require("../services/homepage.coinrates.service");
 const { IInvestmentService } = require("../services/investment.service");
+const {IHowToEarnService} = require("../services/homepage.howToEarn.service")
 // DTOS
 const Stats /** {[key: string] : {[key: string] : string}} */ = {
     stats1: {
@@ -35,24 +36,33 @@ class HomeController {
 
     /**IInvestmentService */
     investmentService
+
+    /** IHowToEarnService */
+    howToEarnService
+
     /**
      * @param {IIntroService} introService 
      * @param {IAuthService} authService
      * @param {IStatsService} statsService
      * @param {ICoinRatesService} coinRateService
      * @param {IInvestmentService} investmentService
+     * @param {IHowToEarnService} howToEarnService
      */
     constructor( 
         introService /**IIntroService */, 
         authService /**IAuthService */, 
         statsService /** IStatsService */,
         coinRateService /**ICoinRatesService */,
-        investmentService /**IInvestmentService */){
+        investmentService /**IInvestmentService */,
+        howToEarnService /**IHowToEarnService */
+        ) {
+
         this.introService = introService;
         this.authService = authService;
         this.statsService = statsService;
         this.coinRatesService = coinRateService
         this.investmentService = investmentService;
+        this.howToEarnService = howToEarnService;
     }
 
     /** 
@@ -193,7 +203,117 @@ class HomeController {
             return res.status(200).json(investments);
         } catch( ex /**Exception */){ 
             return res.status(400).json({error: err.message});
+            
         }
+     }
+
+     /**
+     *  @method POST /howtoearnimage
+     *  @desc Allows only admin upload images for how to earn
+     *  @protected (userId in req.userId | admin access required)
+     * 
+     *  @param {file: {
+     *   fieldname: String,
+      *   mimetype: String,
+      *   destination: String,
+      *   filename: String,
+      *   path: String,
+      *   size: Number
+      *  }} req,
+     *  @param {{status: Stats}} res, 
+     * @returns {Response<>}
+     */
+     createHowToEarnImage = async (req /**Request */, res /**Response */)/**ResponseEntity<> */ => {
+        try{
+            // Ensure user is admin
+            const userId /**ObjectId */ = req.userId;
+            const isAdmin /*boolean*/ = await this.authService.verifyIsAdminFromId(userId);
+            console.log({isAdmin});
+            if(!isAdmin)
+                return res.status(403).json({message: "You are not permitted to upload image"});
+
+            
+            const fileData /**FileSchema  */ = req.file;
+            if(!fileData){
+                return res.status(403).json({error: "Please, include a valid image"});
+            }
+            await this.howToEarnService.createHowToEarnImage(fileData);
+            const howToEarnImage /**HowToEarnImage */ = await this.howToEarnService.getHowToEarnImage(req);
+            return res.status(201).json({howToEarnImage});
+        } catch(ex /**Message */){
+            console.log(ex);
+            return res.status(400).json({error: ex.message});
+        }
+     }
+
+      /**
+      * @method GET /howtoearnimage
+      * @PROTECTED Accessible to all users
+      * @return {HowToEarnImage}
+      */
+     getHowToEarnImage = async (req /**Request */, res /**Response */)/**ResponseEntity<> */ => {
+        try{
+            const  image = await this.howToEarnService.getHowToEarnImage(req);
+            return res.status(200).json({howToEarnImage: image});
+        } catch(ex /**Message */){
+            console.log(ex);
+            return res.status(400).json({error: ex.message});
+        }
+     }
+
+     /**
+     *  @method POST /howtoearn
+     *  @desc Allows only admin upload how to earn
+     *  @protected (userId in req.userId | admin access required)
+     * 
+     *  @param {body: {
+     *     desc: String,
+     *     steps: [{
+     *          title: String,
+     *          details: String
+     *       }]
+     * }} req,
+     *  @param {{status: Stats}} res, 
+     * @returns {Response<>}
+     */
+     createHowToEarn = async  (req /**Request */, res /**Response */)/**ResponseEntity<> */ => {
+        try{
+            // Ensure user is admin
+            const userId /**ObjectId */ = req.userId;
+            const isAdmin /*boolean*/ = await this.authService.verifyIsAdminFromId(userId);
+            if(!isAdmin)
+                return res.status(403).json({message: "You are not permitted to do this"});
+
+            const {desc /**String */, steps /**Array<{title: String, details: String}> */} = req.body;
+            if(!desc || !Array.isArray(steps)){
+                return res.status(403).json({error: "Please input valid data"});
+            }
+
+            const howToEarn /**HowToEarn */= await this.howToEarnService.createHowToEarn({desc, steps});
+
+            return res.status(201).json({howToEarn})
+        } catch(ex /**Message */){
+            console.log(ex);
+            return res.status(400).json({error: ex.message});
+        }
+
+     }
+
+
+     /**
+      * @method GET /howtoearn
+      * @PROTECTED Accessible to all users
+      * @return {HowToEarn}
+      */
+     getHowToEarn = async (req /**Request */, res /**Response */) /**Response<HowToEarn> */ => {
+        try{
+            const howToEarn /** HowToEarn */ = await this.howToEarnService.getHowToEarn()
+            return res.status(200).json({howToEarn});
+        } catch(ex /**Message */){
+            console.log(ex);
+            return res.status(400).json({error: ex.message});
+        }
+
      }
 
 }

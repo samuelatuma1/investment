@@ -76,9 +76,7 @@ class IntroService {
             throw new Error("No image present")
         }
         introDTO.img = fileData;
-        console.log("Intro DTO ======>", introDTO);
         const saveIntro = new Intro(introDTO);
-        console.log("Saved Intro DTO ======>", saveIntro);
 
         const savedIntro /**Intro */ = await saveIntro.save();
 

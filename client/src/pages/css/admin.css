@@ -157,3 +157,17 @@
 .adminStatsSection section{
     padding-left: 20px;
 }
+
+/* How To Earn */
+.howToEarnImageDiv{
+    background-color: white;
+    padding: 10px;
+}
+
+.howToEarnDiv{
+    background-color: white;
+    padding : 10px;
+}
+.howToEarnDiv textarea{
+    min-width: 70%;
+}
