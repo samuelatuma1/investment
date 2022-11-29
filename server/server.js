@@ -9,4 +9,5 @@ const {app} = require("./index.js")
 
 
 const PORT = ConfigurationSettings.getEnv().PORT || 9000;
+
 app.listen(PORT, () => console.log(`Listening on PORT ${PORT}`))

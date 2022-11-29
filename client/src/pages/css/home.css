@@ -137,7 +137,7 @@ html{
     padding: 10px;
 }
 .investmentsHomeDiv{
-    background-color: var(--intro-bg);
+    /* background-color: var(--intro-bg); */
 }
 .investmentCardDiv{
     margin: 20px;
@@ -145,10 +145,12 @@ html{
     border-radius: 10px;
     background-color: white;
     min-width: 400px;
+    box-shadow: 0px 0px 1px 0px #FCD535;
 }
 .investmentCardDiv:hover{
     box-shadow: 0px 0px 1px 0px rgb(219, 207, 193);
     border: 1px solid #FCD535;
+
 }
 .investmentCardDiv .headerSection{
     padding: 10px 0px;
@@ -163,6 +165,7 @@ html{
 .investmentDetails h5{
     display: flex;
     align-items: center;
+    transition: 0.5s;
 }
 .investmentSectionBtn {
     padding: 10px 0px;
@@ -200,6 +203,41 @@ html{
 .investmentCardDiv .waitPeriod {
     margin: auto;
 }
+
+/* How to Earn */
+.howToEarnDiv{
+    background-color: var(--intro-bg);
+    
+}
+.howToEarnDiv h2{
+    font-weight: bold;
+}
+.howToEarnSection{
+    display: grid;
+}
+.howToEarnImage img{
+    display: block;
+    object-fit: cover;
+    max-height: 800px;
+    margin: auto;
+}
+.howToEarnMain{
+    display: grid;
+    align-content: center;
+}
+.howToEarnMain div{
+    padding: 10px;
+}
+.howToEarnMain p{
+    padding: 15px;
+    
+}
+.howToEarnMain h2{
+    display: flex;
+
+    align-items: center;
+    flex-wrap: wrap;
+}
 @media screen and (min-width: 767px){
 
     .homePageIntroDiv > section{
@@ -228,6 +266,11 @@ html{
     }
     .investmentCardDiv {
         max-width: 700px;
+    }
+
+    /* How to earn*/
+    .howToEarnSection{
+        grid-template-columns: 50% 50%;
     }
 }
 

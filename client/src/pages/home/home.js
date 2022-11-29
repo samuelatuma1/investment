@@ -14,8 +14,9 @@ import {Link} from "react-router-dom";
 import imgBg from "../../static/home/img.svg";
 
 // icons
-import {FaUserAlt} from "react-icons/fa";
-import {BsFillChatLeftTextFill} from "react-icons/bs"
+import {FaUserAlt, FaChevronCircleRight} from "react-icons/fa";
+import {BsFillChatLeftTextFill, BsFillCircleFill} from "react-icons/bs"
+
 // style
 import "../css/home.css";
 // Styles
@@ -25,6 +26,16 @@ const homePageBgImg /** {[Key: String]: string} */ = {
     minHeight: "350px"
 
 }
+
+const bgStyle /**Object<String, String> */= {
+    backgroundImage: `url(${imgBg})`, // SVG Background
+    backgroundSize: "contain",
+    minHeight: "250px",
+    backgroundcolor: "white"
+    
+}
+
+
 const HomePageIntro = (props /** {[key: string]: any} */) /**Component */ => {
     // Get Intro details
     // variables
@@ -154,13 +165,7 @@ const CoinsRate /**Component */ = (props /** {[key: string]: any} */) /** JSX */
             setCoins(coinsResp.coins);
         }
     }
-    const bgStyle /**Object<String, String> */= {
-        backgroundImage: `url(${imgBg})`, // SVG Background
-        backgroundSize: "contain",
-        minHeight: "250px",
-        backgroundcolor: "white"
-        
-    }
+    
     return (
         <>
             {
@@ -198,7 +203,7 @@ const CoinsRate /**Component */ = (props /** {[key: string]: any} */) /** JSX */
                                         
                                         <span style={{color: 
                                             coin.market_cap_change_percentage_24h > 0 ? "green": "maroon"}}>
-                                            {coin.market_cap_change_percentage_24h}</span>
+                                            {coin.market_cap_change_percentage_24h.toFixed(2)}%</span>
                                     }
                                 </main>
                             </section>
@@ -211,6 +216,62 @@ const CoinsRate /**Component */ = (props /** {[key: string]: any} */) /** JSX */
     )
 }
 
+
+const HowToEarn /** Component */ = (props /** {[key: String]: any} */) => {
+    // States
+    const [loading /**boolean */, setLoading] = useState(true);
+    const [howToEarn /** {howToEarn : {desc : String, steps: [{}]}, howToEarnImage: {imgUrl: String}} */, setHowToEarn] = useState({howToEarn: null, howToEarnImage: null});
+
+    // Effects
+    useEffect(() => {
+        getfullhowtoearn()
+    }, [])
+    async function getfullhowtoearn() /**void */{
+        setLoading(true);
+        const getFullHowToEarnReq /** Response */ = await fetch("/home/getfullhowtoearn");
+        setLoading(false);
+        if(getFullHowToEarnReq.ok){
+            const resp /** howToEarn */ = await getFullHowToEarnReq.json();
+            setHowToEarn(resp);
+        }
+    }
+
+    return (
+        <>
+        {
+            loading ?
+            <Loading /> :
+            <div className="howToEarnDiv">
+                
+
+                <section className="howToEarnSection">
+                    <div className="howToEarnImage">
+                        {
+                            howToEarn?.howToEarnImage?.imgUrl ?
+                            <img crossOrigin="anonymous" src={howToEarn.howToEarnImage.imgUrl } /> : 
+                            <></>
+                        }
+                    </div>
+
+                    <main className="howToEarnMain">
+                        <header>
+                            <h2 style={{textAlign: "center"}}>
+                                {howToEarn?.howToEarn?.desc}
+                            </h2>
+                        </header>
+                        {howToEarn?.howToEarn?.steps.map(({title, details}, id) => (
+                            <div key={id}>
+                                <h4><FaChevronCircleRight />{title}</h4>
+                                <p>{details}</p>
+                            </div>
+                        ))}
+                    </main>
+                </section>
+            </div>
+        }
+        </>
+    )
+}
 
 const Investments /**Component */ = (props /** {[key: String]: any} */)/** JSX */ => {
     // States
@@ -238,7 +299,7 @@ const Investments /**Component */ = (props /** {[key: String]: any} */)/** JSX *
                 loading ? <Loading /> :
                 <div className="investmentsHomeDiv">
                     <h2>Start earning now!</h2>
-                    <div className="investmentsHomeDiv">
+                    <div className="investmentsHomeDiv" style={bgStyle}>
                     
                     {
                         investments.map((investment, idx) => (
@@ -310,6 +371,7 @@ const HomePage /**Component */ = (props) => {
         <NavigationBar active='' />
         <HomePageIntro />
         <CoinsRate />
+        <HowToEarn />
         <Investments />
     </div>)
 }

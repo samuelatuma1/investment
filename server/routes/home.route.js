@@ -44,5 +44,8 @@ homeRoute.route("/howtoearnimage")
 homeRoute.route("/howtoearn")
         .post(ValidateToken.validateToken, home.createHowToEarn)
         .get(home.getHowToEarn)
+
+homeRoute.route("/getfullhowtoearn")
+        .get(home.getFullHowToEarn);
 module.exports = {homeRoute};
 

@@ -4,7 +4,7 @@ import { UserState } from "../../globalStore/atoms";
 import { useSetRecoilState, useRecoilValue } from "recoil";
 import { useEffect, useRef, useState, createContext, useContext } from "react";
 import {useNavigate} from "react-router-dom";
-
+import imgBg from "../../static/home/img.svg";
 // Custom Hooks
 import {useReRouteIfNotSignedIn, useReRouteIfNotAdmin} from "../../customHooks/auth.hooks.js";
 
@@ -44,7 +44,13 @@ import "../css/admin.css";
   }
  */
 
-
+  const bgStyle /**Object<String, String> */= {
+    backgroundImage: `url(${imgBg})`, // SVG Background
+    backgroundSize: "contain",
+    minHeight: "250px",
+    backgroundcolor: "white"
+    
+}
 
 
 const investmentHeaders = (<div className="investment">
@@ -1781,7 +1787,7 @@ const UserAdminComponent /*: ReactComponent */ = (props) => {
     // Check if a user is admin
     useReRouteIfNotAdmin("/admin")
     const User = useRecoilValue(UserState);
-    return (<div className="userAcctHomePage">
+    return (<div className="userAcctHomePage" style={{...bgStyle}}>
         <ViewTransactionHistory user={User}/>
         <UpdatePendingTransactions user={User}/>
         <RetrieveAndUpdateWithdrawals user={User}/>
@@ -1799,7 +1805,7 @@ const UserAdminComponent /*: ReactComponent */ = (props) => {
 const AdminHomePage /*: React Component */= (props) => {
     return (<>
         <NavigationBar active='UserAccountHomePage'/>
-        <UserAdminComponent />
+        <UserAdminComponent/>
     </>)
 }
 

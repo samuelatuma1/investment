@@ -316,6 +316,23 @@ class HomeController {
 
      }
 
+      /**
+      * @method GET /getfullhowtoearn
+      * @PROTECTED Accessible to all users
+      * @return {{howToEarn: HowToEarn, howToEarnImage: HowToEarnImage}}
+      */
+     getFullHowToEarn = async (req /**Request */, res /**Response */) /**Response<HowToEarn> */ => {
+        try{
+            const howToEarn /** HowToEarn */ = await this.howToEarnService.getHowToEarn();
+            const howToEarnImage /** HowToEarnImage */ = await this.howToEarnService.getHowToEarnImage(req);
+
+            return res.status(200).json({howToEarn, howToEarnImage});
+        } catch(ex /**Message */){
+            console.log(ex);
+            return res.status(400).json({error: ex.message});
+        }
+     }
+
 }
 
 module.exports = {HomeController};
