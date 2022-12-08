@@ -1,14 +1,22 @@
 // Imports
 // states
 import { useState, useEffect } from "react";
+
+// Static files
 import homePageBackgroundIntroImg from "../../static/home/intro/imageforbg.webp";
+import avatar from "../../static/home/avatar.svg";
+
+
 import NavigationBar from "../../components/navigation";
 import { Loading } from "../../components/loading";
 import {HiCurrencyDollar} from "react-icons/hi";
+
+// Icons
 import {FaArrowUp} from "react-icons/fa";
 import {GrNext, GrLineChart} from "react-icons/gr"
 import {TiChartLine} from "react-icons/ti";
 import {BsFillCalendar2CheckFill} from "react-icons/bs";
+import {AiFillStar} from "react-icons/ai";
 // Navigation
 import {Link} from "react-router-dom";
 import imgBg from "../../static/home/img.svg";
@@ -365,6 +373,74 @@ const Investments /**Component */ = (props /** {[key: String]: any} */)/** JSX *
     )
 }
 
+const ReviewDTO = {
+    imageUrl: String || null,
+    name: String,
+    gender: ["male","female"],
+    rating: Number,
+    review: String,
+    country: String
+}
+const Reviews /** Component */ = (props /** {[key: String]: any} */) => {
+    // states
+    const [loading /**boolean */,  setLoading /** Funct<T, T> */] = useState(false);
+    const [reviews /**Array<ReviewDTO> */, setReviews /**Funct<T, T> */] =useState([]);
+    
+    
+    // Effects
+    useEffect(() => {
+        getreviews()
+    }, [])
+    async function getreviews(){
+        setLoading(true)
+        const reviewsReq /** Response */ = await fetch("/home/getreviews");
+        setLoading(false);
+        if(reviewsReq.ok){
+            const reviewsResponse /**{reviews: Array<ReviewDTO>}*/ = await reviewsReq.json()
+            setReviews(reviewsResponse.reviews);
+        }
+    
+    }
+
+    const starStyle /** {[Key: String]: String} */ = {
+        color: "gold"
+    }
+    return (
+        <div className="homeReviewDiv">
+            <h2 style={{textAlign: "center"}}>Reviews</h2>
+            {
+                loading ? <Loading />: 
+                (<div className="reviewListDiv">
+                    {reviews.map((review, idx) => (
+                        <section key={idx} className="reviewCard">
+                            <div className="summaryDiv">
+                                <section className="reviewImgSection">
+                                    <img src={review.imageUrl ? review.imageUrl : avatar} />
+                                </section>
+                                <section className="reviewImgSectionText">
+                                    <span><strong>{review.name}</strong></span>
+                                    <span>{review.country.toUpperCase()}</span>
+                                    {/* Convert rating to stars */}
+                                    <span>{((n => [...Array(n).keys()])(review.rating)).map(
+                                        (rating, idx) => (<AiFillStar style={starStyle} key={idx} />)
+                                    )}</span>
+                                </section>
+                            </div>
+
+                            <div className="reviewDetails">
+                                <main>
+                                    {review.review}
+                                </main>
+                            </div>
+                        </section>
+                    ))}
+                </div>)
+            }
+        </div>
+    )
+}
+
+
 const HomePage /**Component */ = (props) => {
     return (
     <div>
@@ -373,6 +449,7 @@ const HomePage /**Component */ = (props) => {
         <CoinsRate />
         <HowToEarn />
         <Investments />
+        <Reviews />
     </div>)
 }
 

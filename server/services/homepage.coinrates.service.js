@@ -37,11 +37,11 @@ class CoinRatesService {
         if(currentRates !== null){
             // check last time coinsRate was updateDecorator
             const currentRatesLastDate /*Date */ = currentRates.updatedAt;
-            const noOfLastHrsBeforeLastUpdate = Utils.timeDif(currentRatesLastDate);
-          
-            const everyXhrs /**number */= 6;
+            const noOfLastHrsBeforeLastUpdate = Utils.timeDif(currentRatesLastDate, new Date(), "m");
+
+            const everyXMins /**number */= 5;
             ratesResponse.id = currentRates._id;
-            if(everyXhrs >= noOfLastHrsBeforeLastUpdate){
+            if(everyXMins >= noOfLastHrsBeforeLastUpdate){
                 ratesResponse.isValid = true;      
             }
         }

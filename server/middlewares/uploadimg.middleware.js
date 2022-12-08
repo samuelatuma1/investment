@@ -98,7 +98,7 @@ class UploadImage {
      * @param {Array<string>} accepted accepted extensions. default [".jpg", ".jpeg", ".png", ".gif"]
      * @returns 
      */
-    uploadImg = (filePath /**string */ = "", fileSizeLimit /**number */ =  20000000, accepted = [".jpg", ".jpeg", ".png", ".gif", ".svg"]) => {
+    uploadImg = (filePath /**string */ = "", fileSizeLimit /**number */ =  20000000, accepted = [".jpg", ".jpeg", ".png", ".gif", ".svg", ".avif", ".svg", ".webp"]) => {
         return multer({
             storage:  this.storage(filePath), 
             limits: this.limits(fileSizeLimit), 

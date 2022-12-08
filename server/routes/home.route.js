@@ -13,10 +13,15 @@ const {UploadImage} = require("../middlewares/uploadimg.middleware.js");
 const { CoinRatesService } = require("../services/homepage.coinrates.service.js");
 const { InvestmentService } = require("../services/investment.service.js");
 const {HowToEarnService} = require("../services/homepage.howToEarn.service.js");
+const {ReviewService} = require("../services/home.review.service.js");
+const {FooterService} = require("../services/footer.service.js");
 
 const uploadImageHandler = new UploadImage();
-const home /**HomeController */ = new HomeController(new IntroService(), new AuthService(), new StatsService(), new CoinRatesService(), new InvestmentService(), new HowToEarnService());
+const home /**HomeController */ = new HomeController(new IntroService(), new AuthService(), 
+new StatsService(), new CoinRatesService(), new InvestmentService(), 
+new HowToEarnService(), new ReviewService(), new FooterService());
 
+// @Path /home
 homeRoute.route("/intro")
     .post(ValidateToken.validateToken, 
         uploadImageHandler.uploadImg().single("img"),
@@ -47,5 +52,15 @@ homeRoute.route("/howtoearn")
 
 homeRoute.route("/getfullhowtoearn")
         .get(home.getFullHowToEarn);
+
+homeRoute.route("/addreviews")
+        .post(ValidateToken.validateToken, home.addReviews)
+
+homeRoute.route("/getreviews")
+        .get(home.getReviews);
+
+homeRoute.route("/footer")
+        .post(ValidateToken.validateToken, home.createFooter)
+        .get(home.getFooter);
 module.exports = {homeRoute};
 

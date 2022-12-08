@@ -61,7 +61,7 @@ class Utils {
     /**
      * @desc fetches data 
      * @param {OptionsObject} options 
-     * @returns {Object} JSON Response of fetch result or null
+     * @returns {Promise<{[key: String]: String}>} JSON Response of fetch result or null
      */
     static fetchData = async (options /**Options */) => /**Object*/{  
         try{

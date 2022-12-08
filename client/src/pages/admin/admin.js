@@ -1774,10 +1774,246 @@ const HomePageHowToEarn /** Component */ = (props /**{user: User} */) /**JSX */ 
         }
     </>
     )
-    
-
 }
+const ReviewDTO = {
+          imageUrl: String || null,
+          name: String,
+          gender: ["male","female"],
+          rating: Number,
+          review: String,
+          country: String
+}
+const HomepageReview /** Component */ = (props /**{user: User} */) /**JSX */ => {
+    // Props data
+    const User /*: UserModel */= props.user || {};
+    const token  /* String */= "Bearer " + User.token || "";
+    // States
+    const [loading /**boolean */, setLoading /** funct<T, T> */] = useState(false);
+    const toggleRef /** Ref */  = useRef(null);
 
+    const [reviews /**ReviewDTO */, setReviews /** Funct<T, T> */] = useState({
+        reviews: [
+            {name: "", gender: "male", rating: 5, review: "", imageUrl: "", country: "United States"}, {name: "", gender: "male", rating: 5, review: "", imageUrl: "", country: "United States"},
+            {name: "", gender: "male", rating: 5, review: "", imageUrl: "", country: "United States"}, {name: "", gender: "male", rating: 5, review: "", imageUrl: "", country: "United States"},
+            {name: "", gender: "male", rating: 5, review: "", imageUrl: "", country: "United States"}, {name: "", gender: "male", rating: 5, review: "", imageUrl: "", country: "United States"},
+            {name: "", gender: "male", rating: 5, review: "", imageUrl: "", country: "United States"}, {name: "", gender: "male", rating: 5, review: "", imageUrl: "", country: "United States"}
+            
+        ]
+    })
+    // Effects
+    useEffect(() => {
+        getReviews();
+    }, [])
+
+    async function getReviews() /**void*/{
+        setLoading(true);
+        const url /**String */ = "/home/getreviews";
+        const reviewsReq /** Request */= await fetch(url);
+        setLoading(false);
+        if(reviewsReq.ok){
+            const review /**{review: Array<ReviewDTO>} */= await reviewsReq.json();
+            imprintReviews(review.reviews);
+        }
+
+    }
+
+    // Utilities
+    /**
+     * 
+     * @param {Array<ReviewDTO>} newReviews 
+     */
+    function imprintReviews(newReviews /**Array<ReviewDTO> */){
+        
+        let currReviews = reviews.reviews;
+        let currReviewsLength /**number */ = currReviews.length;
+        for(let i /**number */= 0; i < newReviews.length; i++){
+            let newReview /**ReviewDTO */ = newReviews[i];
+            if(i < currReviewsLength){
+                currReviews[i] = newReview;
+            } else{
+                currReviews.push(newReview);
+                currReviewsLength++;
+            }
+        }
+        setReviews({reviews: currReviews});
+    }
+
+    // Events
+    function toggleRefDisplay(e){
+        toggleRef.current.classList.toggle("hide");
+    }
+    function changeCurrentImageAction(e /** Event */) /** void */{
+         // get idx of review to update
+         const idx /**number */ = parseInt(e.target.id);
+         let currReviews /**Array<ReviewDTO> */ = reviews.reviews;
+         
+         // Update
+         currReviews[idx] = {...currReviews[idx], imageUrl: ""};
+         setReviews({reviews: currReviews});
+    }
+    // Events
+    function updateReviewData(e /** Event */) /**void*/{
+        // get idx of review to update
+        const idx /**number */ = parseInt(e.target.id);
+        let currReviews /**Array<ReviewDTO> */ = reviews.reviews;
+        let key /**String */ = e.target.name;
+        let value /**String || number */ = e.target.value;
+        
+        // Update
+        currReviews[idx] = {...currReviews[idx], [key]: value};
+        setReviews({reviews: currReviews});
+    }
+
+    /**
+     * 
+     * @returns reviews with name only
+     */
+    function removeInvalidReviews() /**Array<ReviewDTO>*/{
+        // return reviews.reviews.filter(review => !review.name);
+        let currentReviews  /** Array<ReviewDTO> */= reviews.reviews;
+        let validReviews  /** Array<ReviewDTO> */= [];
+        for(let review  /**ReviewDTO */of currentReviews){
+            if(review.name?.trim()){
+                validReviews.push(review);
+            }
+        }
+        return validReviews;
+    }
+    async function submitReviewAction(e /** Event */) {
+        // remove all invalid reviews (reviews without a name)
+        setLoading(true);
+        const validReviews /**Array<ReviewDTO>*/ = removeInvalidReviews();
+        const reqBody /**JSON */ = JSON.stringify({reviews: validReviews});
+        const url = "/home/addreviews";
+        const addReviewsReq /** Response */ = await fetch(url, {
+            method: "POST",
+            headers: {
+                Authorization: token,
+                "Content-Type": "application/json"
+            },
+            body: reqBody
+        })
+        setLoading(false);
+        if(addReviewsReq.ok){
+            getReviews();
+        } else{
+            alert("an error occured, please try again");
+        }
+    }
+    return (
+    <div className="container">
+        <h3 className="containerDesc">
+            Update Home Page Reviews
+            <button onClick={toggleRefDisplay}>Display</button>
+        </h3>
+
+        <main className="toggleRef hide" ref={toggleRef}>
+            {
+                loading ? <Loading /> :
+                <div className="adminReviewsDiv">
+                    <h3>Update Reviews</h3>
+                    {
+                        reviews.reviews.map((review, idx) => (
+                            <form key={idx} onSubmit={submitReviewAction}>
+                                <h3>
+                                    Reviewer {idx + 1}
+                                </h3>
+                                <h4>
+                                (leave name blank to omit reviewer from reviews )
+                                <br />
+                                    Name of Reviewer e.g John Doe
+                                    
+                                </h4>
+
+                                <label htmlFor="name">
+                                    <input 
+                                     name="name"
+                                     value={review.name}
+                                     id={idx}
+                                     onChange={updateReviewData}
+                                    />
+                                </label>
+
+                                <label htmlFor="country">
+                                    <h4>
+                                        Country of Reviewer
+                                    </h4>
+                                    <input 
+                                     name="country"
+                                     value={review.country}
+                                     id={idx}
+                                     onChange={updateReviewData}
+                                    />
+                                </label>
+
+                                <label htmlFor="gender">
+                                    <h4>
+                                        Gender of Reviewer
+                                    </h4>
+                                    <select name="gender" 
+                                     value={review.gender || "male"} 
+                                     id={idx}
+                                     onChange={updateReviewData}>
+                                        <option value="male">Male</option>
+                                        <option value="female">Female</option>
+                                    </select>
+                                </label>
+
+                                <label htmlFor="review">
+                                    <h4>
+                                        Reviewer's review
+                                    </h4>
+                                    <textarea 
+                                     name="review"
+                                     value={review.review} 
+                                     onChange={updateReviewData}
+                                     id={idx}
+                                     />
+                                </label>
+
+                                <label htmlFor="rating">
+                                    <h4>
+                                        Reviewer's rating
+                                    </h4>
+                                    <select name="rating" 
+                                     value={review.rating} 
+                                     id={idx}
+                                     onChange={updateReviewData}>
+                                        <option value={1}>1 star</option>
+                                        <option value={2}>2 stars</option>
+                                        <option value={3}>3 stars</option>
+                                        <option value={4}>4 stars</option>
+                                        <option value={5}>5 stars</option>
+                                    </select>
+                                </label>
+
+                                <aside className="reviewImgAside">
+                                    <h4>Reviewer's image</h4>
+                                    { review.imageUrl ? (
+                                    <div >
+                                        <img crossOrigin="anonymous"
+                                            src={review.imageUrl} alt="reviewer's profile picture"/>
+                                            <button id={idx}
+                                                type="button"
+                                                onClick={changeCurrentImageAction}
+                                                className={"reviewImgBtn"}
+                                             >Change Current Image</button>
+                                    </div>): (<>
+                                    <p>Image would be auto created on submission of review</p>
+                                    </>)}
+                                </aside>
+                                <button className="reviewSubmitButton">
+                                    Update Review
+                                </button>
+                            </form>
+                        ))
+                    }
+                </div>
+            }
+        </main>
+    </div>  
+    )
+}
 /**
  * @route /admin
  * @param {*} props 
@@ -1796,6 +2032,7 @@ const UserAdminComponent /*: ReactComponent */ = (props) => {
        <HomePageIntro user={User} />
        <HomepageStats user={User} />
        <HomePageHowToEarn  user={User} />
+       <HomepageReview user={User} />
     </div>)
     
 }

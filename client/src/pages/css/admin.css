@@ -172,3 +172,19 @@
 .howToEarnDiv textarea{
     min-width: 70%;
 }
+
+/** Review*/
+.adminReviewsDiv > form{
+    background-color: white;
+    padding: 10px;
+    margin: 10px;
+}
+.adminReviewsDiv img{
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 50%;;
+}
+.reviewImgAside {
+    padding: 10px;
+}

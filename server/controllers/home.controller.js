@@ -3,7 +3,9 @@ const {IStatsService} = require("../services/homepage.stats.service");
 const { IAuthService } = require("../services/auth.service");
 const {ICoinRatesService } = require("../services/homepage.coinrates.service");
 const { IInvestmentService } = require("../services/investment.service");
-const {IHowToEarnService} = require("../services/homepage.howToEarn.service")
+const {IHowToEarnService} = require("../services/homepage.howToEarn.service");
+const {IReviewService} = require("../services/home.review.service.js");
+const {IFooterService, FooterDTO} = require("../services/footer.service.js");
 // DTOS
 const Stats /** {[key: string] : {[key: string] : string}} */ = {
     stats1: {
@@ -23,6 +25,14 @@ const Stats /** {[key: string] : {[key: string] : string}} */ = {
         desc: String,
     }
 }
+const ReviewDTO = {
+    imageUrl: String || null,
+    name: String,
+    gender: ["male", "female"],
+    review: String
+}
+
+
 // @Path("home")
 class HomeController {
     /**IIntroService */
@@ -40,6 +50,12 @@ class HomeController {
     /** IHowToEarnService */
     howToEarnService
 
+    /**IReviewService */
+    reviewService
+
+    /**IFooterService */
+    footerService
+
     /**
      * @param {IIntroService} introService 
      * @param {IAuthService} authService
@@ -47,6 +63,8 @@ class HomeController {
      * @param {ICoinRatesService} coinRateService
      * @param {IInvestmentService} investmentService
      * @param {IHowToEarnService} howToEarnService
+     * @param {IReviewService} reviewService
+     * @param {IFooterService} footerService
      */
     constructor( 
         introService /**IIntroService */, 
@@ -54,7 +72,9 @@ class HomeController {
         statsService /** IStatsService */,
         coinRateService /**ICoinRatesService */,
         investmentService /**IInvestmentService */,
-        howToEarnService /**IHowToEarnService */
+        howToEarnService /**IHowToEarnService */,
+        reviewService /**IReviewService */,
+        footerService /**IFooterService */
         ) {
 
         this.introService = introService;
@@ -63,6 +83,8 @@ class HomeController {
         this.coinRatesService = coinRateService
         this.investmentService = investmentService;
         this.howToEarnService = howToEarnService;
+        this.reviewService = reviewService;
+        this.footerService = footerService;
     }
 
     /** 
@@ -327,11 +349,111 @@ class HomeController {
             const howToEarnImage /** HowToEarnImage */ = await this.howToEarnService.getHowToEarnImage(req);
 
             return res.status(200).json({howToEarn, howToEarnImage});
-        } catch(ex /**Message */){
+        } catch(ex /**Exception */){
             console.log(ex);
             return res.status(400).json({error: ex.message});
         }
      }
+
+     /**
+      * @method POST /addreviews
+      *  @desc Allows only admin add reviews
+      *  @protected (userId in req.userId | admin access required)
+      * @param {{
+      *     reviews: Array<ReviewDTO>
+      * }} req 
+      * @param {*} res 
+      * @returns {{review: Array<ReviewDTO>}}
+      */
+     addReviews = async (req /**Request */, res /** Response*/) /**Response<Review> */ => {
+        try{
+            // Ensure user is admin
+            const userId /**ObjectId */ = req.userId;
+            const isAdmin /*boolean*/ = await this.authService.verifyIsAdminFromId(userId);
+            if(!isAdmin)
+                return res.status(403).json({message: "You are not permitted to do this"});
+
+            const {reviews /** Array<ReviewDTO> */} = req.body;
+            if(!Array.isArray(reviews)){
+                return res.status(403).json({message: "Please, input valid reviews"})
+            }
+
+            const savedReview /**Review */= await this.reviewService.addReviews(reviews);
+            return res.status(201).json({review: savedReview});
+        } catch( ex /** Exception */){
+            console.log(ex);
+            return res.status(400).json({error: ex.message});
+        }
+     }
+
+     /**
+      * @method GET /getreviews
+      * @PROTECTED Accessible to all users
+      * @returns {{review: Array<ReviewDTO>}}
+      */
+      getReviews = async (req /** Request */, res /**Response */) /** Response<Review */ => {
+        try{
+            const review /** Review */ = await this.reviewService.getReviews();
+            return res.status(200).json(review);
+        } catch( ex /**Exception */){
+            console.log(ex);
+            return res.status(400).json({error: ex.message});
+        }
+      } 
+
+
+       /**
+      * @method POST /footer
+      *  @desc Allows only admin create footer
+      *  @protected (userId in req.userId | admin access required)
+      * @param {{
+        *     body: {
+        *       footer: FooterDTO
+        *     }
+        * }} req 
+        * @param {{footer: Footer}} res 
+        * @returns {{footer: Footer}}
+        */
+      createFooter = async  (req /**Request */, res /** Response*/) /**Response<Footer> */ => {
+             try{
+                // Ensure user is admin
+                const userId /**ObjectId */ = req.userId;
+                const isAdmin /*boolean*/ = await this.authService.verifyIsAdminFromId(userId);
+                if(!isAdmin)
+                    return res.status(403).json({message: "You are not permitted to do this"});
+
+                // Ensure footer has company name
+                
+                const footerDetails /** FooterDTO */ = req.body.footer;
+                if(!footerDetails?.companyName){
+                    return res.status(403).json({message: "Please, include the company name."});
+                }
+
+                const createdFooter /** Footer */= await this.footerService.createFooter(footerDetails);
+
+                return res.status(201).json({footer: createdFooter});
+             }  
+             catch( ex /**Exception */){
+                console.log(ex);
+                return res.status(400).json({error: ex.message});
+            }
+
+      }
+
+      /**
+      * @method GET /footer
+      * @PROTECTED Accessible to all users
+      * @returns {{footer: Response<Footer>}}
+      */
+      getFooter = async (req /**Request */, res /** Response*/) /**Response<Footer> */ => {
+            try{
+                const footer /**Footer */ = await this.footerService.getFooter();
+                return res.status(200).json({footer});
+            } catch( ex /**Exception */){
+                console.log(ex);
+                return res.status(400).json({error: ex.message});
+            }
+      }
 
 }
 
