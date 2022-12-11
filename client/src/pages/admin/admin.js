@@ -10,7 +10,7 @@ import {useReRouteIfNotSignedIn, useReRouteIfNotAdmin} from "../../customHooks/a
 
 // MdOutlinePendingActions => Approved 
 import { MdEmail, MdDescription } from 'react-icons/md';
-
+import { Footer } from "../../components/footer";
 // Loading State
 import {Loading} from "../../components/loading.js";
 import {FaRegMoneyBillAlt} from "react-icons/fa";
@@ -643,24 +643,27 @@ const UpdatePendingTransactions = (props) => {
             Update Transactions 
             <button onClick={toggleRefDisplay}>Display</button>
         </h3>
-        {
-            loading ? <Loading /> : (
-                <main className="toggleRef" ref={toggleRef}>
-                    <section className="statuses">
-                        <button id="pending" 
-                        onClick={getTransactionsWithStatus}>
-                            Pending
-                        </button>
-                        <button id="approved"
-                        onClick={getTransactionsWithStatus}>
-                            Approved
-                        </button>
-                        <button id="rejected"
-                        onClick={getTransactionsWithStatus}>
-                            Rejected
-                        </button>
-                    </section>
+
+        <main className="toggleRef hide" ref={toggleRef}>
+            <section className="statuses">
+                <button id="pending" 
+                onClick={getTransactionsWithStatus}>
+                    Pending
+                </button>
+                <button id="approved"
+                onClick={getTransactionsWithStatus}>
+                    Approved
+                </button>
+                <button id="rejected"
+                onClick={getTransactionsWithStatus}>
+                    Rejected
+                </button>
+            </section>
+            {
+                loading ?  <Loading /> :
+                <>
                     <header>
+                
                         <h3>
                         {transactionsStatus} Transactions
                         </h3>
@@ -669,17 +672,19 @@ const UpdatePendingTransactions = (props) => {
                         {
                             pendingTransactions.map(transaction => (
                                 <div key={transaction._id}>
-                                   <PendingTransactionDisplay 
-                                   transaction={transaction}
-                                   token={token}
-                                   />
+                                <PendingTransactionDisplay 
+                                transaction={transaction}
+                                token={token}
+                                />
                                 </div>
                             ))
                         }
                     </div>
-                </main>
-            )
-        }
+                </>
+
+            }
+        </main>
+            
     </div>)
 }
 
@@ -1613,8 +1618,8 @@ const HomePageHowToEarn /** Component */ = (props /**{user: User} */) /**JSX */ 
 
     function updateHowToEarn(newHowToEarn /**howToEarnDTO */ ) /* howToEarnDTO*/{
         let currentHowToEarn /**howToEarnDTO */= howToEarn;
-        currentHowToEarn.desc = newHowToEarn.desc;
-        const steps /**var */= newHowToEarn.steps || currentHowToEarn.steps;
+        currentHowToEarn.desc = newHowToEarn?.desc || [];
+        const steps /**var */= newHowToEarn?.steps || currentHowToEarn?.steps || [];
         for(let i /**int */ = 0; i < steps.length; i++){
             currentHowToEarn.steps[i] = steps[i];
         }
@@ -1691,8 +1696,8 @@ const HomePageHowToEarn /** Component */ = (props /**{user: User} */) /**JSX */ 
                         <h3>Current How to earn image</h3>
                         <section>
                             {
-                                howToEarnImage.imgUrl !== "" ?
-                                <img crossOrigin="anonymous" src={howToEarnImage.imgUrl}  alt="How to earn image" /> : <h3>
+                                howToEarnImage?.imgUrl ?
+                                <img crossOrigin="anonymous" src={howToEarnImage.imgUrl} style={{maxWidth: '100%'}} alt="How to earn image" /> : <h3>
                                     No image for how To earn uploaded yet
                                     </h3>
                             }
@@ -1783,6 +1788,8 @@ const ReviewDTO = {
           review: String,
           country: String
 }
+
+
 const HomepageReview /** Component */ = (props /**{user: User} */) /**JSX */ => {
     // Props data
     const User /*: UserModel */= props.user || {};
@@ -1812,7 +1819,9 @@ const HomepageReview /** Component */ = (props /**{user: User} */) /**JSX */ => 
         setLoading(false);
         if(reviewsReq.ok){
             const review /**{review: Array<ReviewDTO>} */= await reviewsReq.json();
-            imprintReviews(review.reviews);
+            if(review){
+                imprintReviews(review.reviews);
+            }
         }
 
     }
@@ -2014,6 +2023,11 @@ const HomepageReview /** Component */ = (props /**{user: User} */) /**JSX */ => 
     </div>  
     )
 }
+
+
+
+
+
 /**
  * @route /admin
  * @param {*} props 
@@ -2032,7 +2046,8 @@ const UserAdminComponent /*: ReactComponent */ = (props) => {
        <HomePageIntro user={User} />
        <HomepageStats user={User} />
        <HomePageHowToEarn  user={User} />
-       <HomepageReview user={User} />
+       <HomepageReview user={User} /> 
+       <Footer user={User} />
     </div>)
     
 }

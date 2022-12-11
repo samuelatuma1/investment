@@ -188,3 +188,9 @@
 .reviewImgAside {
     padding: 10px;
 }
+
+/** Footer */
+.footerDetailsForm{
+    padding: 10px;
+    background-color: white;
+}

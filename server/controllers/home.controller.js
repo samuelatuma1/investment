@@ -209,7 +209,7 @@ class HomeController {
             const response /**CoinRates */ = await this.coinRatesService.retrieveCoins();
             return res.status(200).json(response);
         } catch( ex /**Exception */){
-            return res.status(400).json({error: err.message});
+            return res.status(400).json({error: ex.message});
         }
      }
 

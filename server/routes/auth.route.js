@@ -36,4 +36,10 @@ authRoute.route("/userIsSignedIn/:token")
 
 authRoute.route("/userIsAdmin/:token")
     .get(auth.userIsAdmin);
+
+authRoute.route("/forgotpassword")
+    .post(auth.forgotPassword)
+
+authRoute.route("/updatepassword/:token")
+    .put(auth.updatePassword)
 module.exports = {authRoute}

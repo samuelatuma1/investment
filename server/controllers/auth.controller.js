@@ -1,10 +1,16 @@
 "use strict"
-const {validationResult} = require("express-validator")
+const {validationResult} = require("express-validator");
+const { IMailService } = require("../services/mail.service");
 
 class IAuth {
     
 }
 class Auth{
+    /**
+     * 
+     * @param {AuthService} authService 
+     * @param {IMailService} mailService
+     */
     constructor(authService, mailService, accountService){
         this.authService = authService;
         this.mailService = mailService;
@@ -136,7 +142,7 @@ class Auth{
 
     /**
      * @desc checks if a user is admin using token provided in req Params
-     * @METHOD GET /auth//userIsAdmin/:token
+     * @METHOD GET /auth/userIsAdmin/:token
      * @param req {
      }
      */
@@ -150,6 +156,82 @@ class Auth{
             return res.status(200).json({isAdmin: false});
         }
     }
+
+
+    /**
+     * @desc sends mail to valid email address to reset password
+     * @METHOD POST /auth/forgotpassword
+     * @param {body : {email: String}} req 
+     * @returns {Response<{sent: boolean}>}
+     */
+    forgotPassword = async (req /*: Request */, res /*: Response */) /*: Response<{sent: boolean}>*/ => {
+        try{
+            const {email /** String */} = req.body;
+            let sent /** boolean */ = false;
+            if(!email){
+                return res.status(400).json({error: "Please, include a valid email"})
+            }
+            const JWT_id /** JWTToken */= await this.authService.forgotPassword(email);
+            if(JWT_id !== null){
+                const urlPath = "/auth/passwordreset"
+                const verificationUrl = req.protocol + '://' + req.get('host') 
+                    + urlPath + "/" + JWT_id;
+
+                const divToUpdatePassword /** HTMLElement */ = `
+                <div style="font-family: verdana sans-serif;">
+                    <h3>Hello </h3>
+                    <p>Password Reset</p>
+
+                    <button style="background: teal; color: white; border: 0px solid teal; 
+                        border-radius: 5px; padding: 10px;">
+                            <a href="${verificationUrl}" style="color: inherit;
+                            text-decoration: none;">Update Password</a>
+                        </button>
+                    <p>Didn't sign up for our mail, Please email us at ...</p>
+                </div>
+                `
+                this.mailService.sendMail(email, "Password reset", divToUpdatePassword);
+                sent = true;
+                console.log({verificationUrl});
+            }
+
+            return res.status(200).json({sent});
+        }
+        catch(err /** Exception */){
+            console.log(err.message);
+            return res.status(200).json({error: err.message});
+        }
+
+    }
+    
+    
+    /**
+     * @desc resets password for forgotten password
+     * @METHOD PUT /auth/updatepassword/{token}
+     * @param {body : {newPassword: String, confirmPassword: String}} req 
+     * @returns {Response<{sent: boolean}>}
+     */
+    updatePassword = async (req /*: Request */, res /*: Response */) /*:*/ => {
+        try{
+            const token /** JWTToken */ = req.params.token;
+            const {newPassword /** String */, confirmPassword /** String */} = req.body;
+
+            if(!newPassword || !confirmPassword  || newPassword !== confirmPassword ){
+                return res.status(400).json({error: "Passwords (confirmPassword and newPassword) must match,"});
+            }
+            const updatedPassword = await this.authService.updatePassword(token, {newPassword});
+            if(!updatedPassword){
+                return res.status(400).json({error: "Password update failed, please, try again"});
+            }
+            else{
+                return res.status(200).json({email: updatedPassword.email});
+            }
+        } catch(err /** Exception */){
+            console.log(err.message);
+            return res.status(200).json({error: err.message});
+        }
+    }
+
 }
 
 module.exports = {Auth}

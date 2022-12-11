@@ -13,6 +13,8 @@ import "@fontsource/montserrat";
 // Pages
 import Signup from "./pages/auth/signup";
 import Signin from "./pages/auth/signin";
+import ForgotPassword from './pages/auth/forgotpassword';
+import PasswordReset from './pages/auth/passwordreset';
 
 // User Pages
 import UserAccountHomePage from "./pages/acct/userAcctHomePage.js";
@@ -32,9 +34,11 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/auth/signup" element={<Signup />} />
             <Route path="/auth/signin" element={<Signin />} />
+            <Route path="/auth/forgotpassword" element={<ForgotPassword />} />
 
             <Route path="/acct/home" element={< UserAccountHomePage/>} />
             <Route path="/admin" element={<AdminHomePage />} />
+            <Route path="/auth/passwordreset/:token" element={<PasswordReset />} />
           </Routes>
           
         </BrowserRouter>

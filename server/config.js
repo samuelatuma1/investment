@@ -10,6 +10,10 @@ class MongooseSetup {
     
 }
 class ConfigurationSettings {
+    /**
+     * 
+     * @returns {{[key: String]: String}} process.env Object
+     */
     static getEnv = () => /**Object<String, Number | String> */{
         return env;
     }

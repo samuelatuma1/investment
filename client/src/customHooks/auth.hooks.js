@@ -68,7 +68,6 @@ const useReRouteIfNotSignedIn = (next) => {
                 // alert("User signed in")
                 console.log("signed in");
             } else{
-                alert("User not signed in")
                 navigate(`/auth/signin?next=${next}`);
             }
         }
@@ -91,7 +90,7 @@ const useReRouteIfNotAdmin = (next) => {
                // alert("User signed in")
                console.log("admin signed in");
            } else{
-               alert("Sorry, you do not have access to this page");
+            //    alert("Sorry, you do not have access to this page");
                navigate(`/auth/signin?next=${next}`);
            }
        }

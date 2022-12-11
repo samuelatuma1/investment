@@ -3,15 +3,14 @@
     --big-screen: 767px;
     --investment-bg: rgb(220, 213, 213);
 }
-*{
-    box-sizing: border-box;
-}
+
 body{
     width: 100vw;
     margin: auto;
-    /* min-width: 100vw;
-    max-width: 100vw; */
+
     overflow-x: hidden;
+    color: 
+    
 
 }
 .homePageIntroDiv{
@@ -142,6 +141,7 @@ body{
 /* Investments */
 .investmentsHomeDiv{
     padding: 10px;
+    width: 100vw;
 }
 .investmentsHomeDiv{
     /* background-color: var(--intro-bg); */
@@ -302,7 +302,14 @@ body{
     min-width:51%;
 }
 
-
+.authAnchor{
+     color: #f5a623;
+     font-weight: bolder;
+     text-decoration: none;
+}
+.authAnchor:hover{
+    text-decoration: underline;
+}
 @media screen and (min-width: 767px){
 
     .homePageIntroDiv > section{

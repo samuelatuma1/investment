@@ -11,6 +11,8 @@ import {useReRouteIfNotSignedIn} from "../../customHooks/auth.hooks.js";
 // MdOutlinePendingActions => Approved 
 import { MdNoteAdd} from 'react-icons/md';
 
+
+
 import {AiFillMinusSquare, AiFillPlusSquare,  AiOutlineLoading3Quarters, AiOutlineInfoCircle} from "react-icons/ai";
 
 import {FiArrowUp} from "react-icons/fi";
@@ -27,6 +29,7 @@ import "../css/general.css";
 
 // Components
 import {Loading} from "../../components/loading.js";
+import { Footer } from "../../components/footer";
 /**
  * UserModel: {
     fullName: string;
@@ -62,6 +65,21 @@ import {Loading} from "../../components/loading.js";
     "deleted": false
   }
  */
+
+/** Utilities */
+
+/**
+ * 
+ * @param {DateTime} dateString 
+ * @returns {Striing }a more human readable date time representation
+ */
+const formatDate = (dateString /**DateTime */) /** String */=> {
+  const options /** {[Key: String]: String} */= {weekday: "long", year: "numeric", month: "long", day: "numeric" }
+  const country /**String */ = "en-US"
+  const date /**DateTime  */ = new Date(dateString)
+  return `${date.toLocaleDateString(country, options)} ${date.toLocaleTimeString(country)}`
+}
+
 /**
  * @Component
  * @param {*} props 
@@ -138,7 +156,7 @@ const ViewTransactionHistory = (props) => {
             View Transaction History
             <button onClick={toggleRefDisplay} className="toggleBtn">Display</button>
         </h3>
-        <main className="toggleRef" ref={toggleRef}>
+        <main className="toggleRef hide" ref={toggleRef}>
             <section className="statusBtns">
                 <button id="pending"
                 name="0"
@@ -202,14 +220,14 @@ const ViewTransactionHistory = (props) => {
                             <section>
                                 <p>TRANSACTION DATE <BsCalendar2Date /></p>
                                 <h4>
-                                    {transaction.createdAt}
+                                    {formatDate(transaction.createdAt)}
                                 </h4>
                             </section>
 
                             <section>
                                 <p>AVAILABLE FOR WITHDRAWAL  <BsCalendar2Date /></p>
                                 <h4>
-                                    {transaction.availableForWithdrawal}
+                                    {formatDate(transaction.availableForWithdrawal)}
                                 </h4>
                             </section>
                         </div>
@@ -417,7 +435,7 @@ const RequestFundAccount = (props) => {
         </h3>
         
 
-        <main className="toggleRef" ref={toggleRef}>
+        <main className="toggleRef hide" ref={toggleRef}>
             {/* Form to fund investment */}
             {
                 loading ? (<Loading />) : (
@@ -583,16 +601,7 @@ minimumAmtLeftInAcct /**number */
      * desc updates Withdrawable And Pending Balance to reflect most recent withdrawal
      */
     function updateWithdrawableAndPendingBalance() /** void */{
-        // setWithdrawableAndPendingBalance(prevState => {
-        //     const clonedWithdrawalBalances  /**{[key: string], {
-        //         "availableWithdrawableBalance": number,
-        //       "pendingWithdrawableBalance": number
-        //     }} */ = {...prevState};
-        //     clonedWithdrawalBalances[currency].availableWithdrawableBalance = minimumAmtLeftInAcct;
-        //     clonedWithdrawalBalances[currency]
-        //         .pendingWithdrawableBalance += parseFloat(withdrawalForm.amount);
-        //     return clonedWithdrawalBalances
-        // })
+        
 
         let currentValue = withdrawableAndPendingBalanceState;
         currentValue[currency].pendingWithdrawableBalance += parseFloat(withdrawalForm.amount);
@@ -766,7 +775,7 @@ const RequestWithdrawal = (props) => {
             // }
             
         } else{
-            alert("an error occurred");
+            // alert("an error occurred");
         }
     }
     // end of effects Actions
@@ -805,7 +814,7 @@ const RequestWithdrawal = (props) => {
             Request Withdrawal
             <button onClick={toggleRefDisplay}>Display</button>
         </h3>
-        <main className="toggleRef" ref={toggleRef}>
+        <main className="toggleRef hide" ref={toggleRef}>
             {
                 loading ? <Loading />: <div>
                     <div className="withdrawalDetails">
@@ -830,7 +839,12 @@ const RequestWithdrawal = (props) => {
                         {/* Display balances */}
                         <main className="displayBalances">
                             {
-                                currentCurrency === "" ? <></>:
+                                currentCurrency === "" ? 
+                                    <div className="emptyList">
+                                        <h1><MdNoteAdd /></h1>
+                                        <p>Please, click on the currency you want to withdraw from.</p>
+                                    </div>
+                                :
                                     <div>
                                        <section>
                                             <h5>
@@ -906,12 +920,17 @@ const UserAccountComponent /*: ReactComponent */ = (props) => {
     // Check if a user is signed in
     useReRouteIfNotSignedIn("/acct/home")
     const User = useRecoilValue(UserState);
-    return (<div className="userAcctHomePage">
+    return (
+    <>
+    <div className="userAcctHomePage">
         <ViewTransactionHistory user={User}/>
         <RequestFundAccount user={User}/>
         <RequestWithdrawal user={User}/>
-        <ViewTransactionHistory user={User}/>
-    </div>)
+
+    </div>
+    <Footer />
+    
+    </>)
     
 }
 

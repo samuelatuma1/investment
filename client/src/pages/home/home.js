@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 
 // Static files
 import homePageBackgroundIntroImg from "../../static/home/intro/imageforbg.webp";
+import imgBg from "../../static/home/img.svg";
+
 import avatar from "../../static/home/avatar.svg";
 
 
@@ -19,7 +21,9 @@ import {BsFillCalendar2CheckFill} from "react-icons/bs";
 import {AiFillStar} from "react-icons/ai";
 // Navigation
 import {Link} from "react-router-dom";
-import imgBg from "../../static/home/img.svg";
+
+// Footer
+import { Footer } from "../../components/footer";
 
 // icons
 import {FaUserAlt, FaChevronCircleRight} from "react-icons/fa";
@@ -78,9 +82,11 @@ const HomePageIntro = (props /** {[key: string]: any} */) /**Component */ => {
         if(introReq.ok){
             setLoading(false);
             const introRes /**Intro */ = await introReq.json();
-            setIntro(prevIntro => introRes.intro);
-            const statsValues /**Array<{data: String, desc: String}> */ = flattenStats(introRes.stats);
-            setStats(statsValues);
+            if(introRes.intro){
+                setIntro(prevIntro => introRes.intro);
+                const statsValues /**Array<{data: String, desc: String}> */ = flattenStats(introRes.stats);
+                setStats(statsValues);
+            }
         }
     }
     return (
@@ -397,7 +403,9 @@ const Reviews /** Component */ = (props /** {[key: String]: any} */) => {
         setLoading(false);
         if(reviewsReq.ok){
             const reviewsResponse /**{reviews: Array<ReviewDTO>}*/ = await reviewsReq.json()
-            setReviews(reviewsResponse.reviews);
+            if(reviewsResponse){
+                setReviews(reviewsResponse.reviews);
+            }
         }
     
     }
@@ -450,6 +458,7 @@ const HomePage /**Component */ = (props) => {
         <HowToEarn />
         <Investments />
         <Reviews />
+        <Footer />
     </div>)
 }
 

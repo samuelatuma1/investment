@@ -3,6 +3,7 @@ const {User} = require("../models/auth.model.js")
 const {Mail} = require("./mail.service.js")
 const crypto = require("crypto")
 const {JWTService} = require("./jwt.service.js")
+const {ConfigurationSettings} = require("../config.js");
 
 class IAuthService {
     /**
@@ -70,7 +71,15 @@ class IAuthService {
 
 
 class AuthService{
-    constructor(){}
+    /**
+     * @param {{[Key: String]: String | Number}} env
+     */
+    env;
+
+    constructor(){
+        this.env /**  {[Key: String]: String | Number}  */ = ConfigurationSettings.getEnv();
+
+    }
     /**
      * @desc hashes User Password, saves user taking {email, password, fullName} from req.body
      * @param req : Request Object
@@ -81,10 +90,10 @@ class AuthService{
         try{
             const {email, password, fullName} = req.body
             // Hash password
-            const hashedPassword = crypto.createHmac("sha256", process.env.HashKey)
+            const hashedPassword = crypto.createHmac("sha256", this.env.HashKey)
                 .update(password).digest("hex")
 
-            const newUser = await new User({email, fullName,  password: hashedPassword})
+            const newUser = new User({email, fullName,  password: hashedPassword})
             return await newUser.save()
         } catch(err){
             
@@ -99,7 +108,7 @@ class AuthService{
     verifyEmail = async (token) => {
         try {
             // unhash token 
-            const _id = JWTService.verifyToken(token, process.env.JWT_KEY)
+            const _id = JWTService.verifyToken(token, this.env.JWT_KEY)
             // Check whose email matches token
             // Result of _id is hashed as {email: emailAddress}
             const userToVerify = await User.findOne(_id)
@@ -112,15 +121,23 @@ class AuthService{
         }
     }
 
+    /**
+     * 
+     * @param {String} data 
+     * @returns {String}
+     */
+    #hashData = (data /** String */) /** String */ => {
+        return crypto.createHmac("sha256", this.env.HashKey)
+                .update(data).digest("hex");
+    }
     authenticate = async (email, password) => {
         
         // Hash password
-        const hashedPassword = crypto.createHmac("sha256", process.env.HashKey)
-                .update(password).digest("hex")
+        const hashedPassword = this.#hashData(password);
         const user = await User.findOne({email, password: hashedPassword})
         // if user is add token to data
         if(user){
-            const token = JWTService.signToken({_id: user._id}, process.env.JWT_KEY)
+            const token = JWTService.signToken({_id: user._id}, this.env.JWT_KEY)
             user.token = token
         }
         return user
@@ -142,7 +159,7 @@ class AuthService{
      */
     userIsSignedIn = async (token) => {
         try{
-            const decryptedToken /*: {_id: ObjectId...} */ = JWTService.verifyToken(token, process.env.JWT_KEY);
+            const decryptedToken /*: {_id: ObjectId...} */ = JWTService.verifyToken(token, this.env.JWT_KEY);
         if(!decryptedToken){
             return false;
         }
@@ -158,7 +175,7 @@ class AuthService{
      */
     userIsAdmin = async (token /**: JWTToken */, ) /*: boolean */ => {
         try{
-            const decryptedToken /*: {_id: ObjectId...} */ = JWTService.verifyToken(token, process.env.JWT_KEY);
+            const decryptedToken /*: {_id: ObjectId...} */ = JWTService.verifyToken(token, this.env.JWT_KEY);
 
         if(!decryptedToken){
             return false;
@@ -183,7 +200,7 @@ class AuthService{
      */
      userIsAdmin = async (token /**: JWTToken */ ) /*: boolean */ => {
         try{
-            const decryptedToken /*: {_id: ObjectId...} */ = JWTService.verifyToken(token, process.env.JWT_KEY);
+            const decryptedToken /*: {_id: ObjectId...} */ = JWTService.verifyToken(token, this.env.JWT_KEY);
 
         if(!decryptedToken){
             return false;
@@ -228,6 +245,52 @@ class AuthService{
         
 
         return user;
+    }
+
+
+    /**
+     * 
+     * @param {String} email 
+     * @returns {Promise<JWTToken>} JWT Representation of _id
+     */
+    forgotPassword = async (email /** String */) /** String */ => {
+        // check if email exists in DB
+        const emailExists /** User */= await User.findOne({ email});
+
+        // if email exists. convert email to JWT, expire in 1 hour
+        if(emailExists ){
+            const expiryTime /** Number */ = 60 * 60 ;
+            const encryptedEmail /** String */ = JWTService.signToken({_id: emailExists._id}, this.env.JWT_KEY, expiryTime);
+
+            // return  JWT
+            return encryptedEmail;
+        }
+        return null
+    }
+
+    /**
+     * 
+     * @param {JWTToken} token 
+     * @param {{newPassword : String}} param1 
+     * @returns {{email: String}}
+     */
+    updatePassword  = async (token /** JWTToken */, {newPassword /** String */}) => {
+        if(newPassword.length < 4) {
+            return null;
+        }
+        const {_id} = JWTService.verifyToken(token, this.env.JWT_KEY);
+        if(!_id){
+            return null;
+        }
+        const user /** User */ = await User.findById(_id);
+        if(user){
+            const hashPassword /** String */= this.#hashData(newPassword);
+
+            const updatedPassword = await User.findByIdAndUpdate(_id, {password: hashPassword});
+            return {email: user.email};
+        }
+
+        return null;
     }
 }
 

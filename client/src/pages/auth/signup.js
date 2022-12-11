@@ -1,6 +1,13 @@
 // Styles
 import "../css/forms.css";
+// static 
 import SignUpImg from "./static/signup.png";
+import imgBg from "../../static/home/img.svg";
+
+import { Footer } from "../../components/footer";
+
+import {FaUserAlt} from "react-icons/fa";
+
 
 // Navigation
 import {
@@ -28,6 +35,14 @@ function searchForEmpties(dict){
 }
 function match(strA, strB){
     return strA === strB;
+}
+
+const bgStyle /**Object<String, String> */= {
+    backgroundImage: `url(${imgBg})`, // SVG Background
+    backgroundSize: "contain",
+    minHeight: "250px",
+    backgroundcolor: "white"
+    
 }
 
 function strongPassword(string){
@@ -141,95 +156,99 @@ const SignUpForm = (props) => {
 
     }
     return (
-        <div className="auth">
-        
-        <form className="form" onSubmit={submitForm}>
+        <>
+            <div className="auth" style={bgStyle}>
             
-            <div className="desc">
-                <h1>Sign up here</h1>
-            </div>
+            <form className="form" onSubmit={submitForm}>
+                
+                <div className="desc">
+                    <h1>Sign up here</h1>
+                </div>
+                <p>
+                    Already have an account?
+                    <Link to="/auth/signin" className="authAnchor">
+                        Sign in here
+                    </Link>
+                </p>
+                <br />
 
-            <div className="errors">
-                {
-                    formErrors.length > 0 ?
-                    (
-                   
-                    formErrors.map((err, key) => (<li className="formErr" key={key}>
-                        <MdError />
-                        {err.param} {err.msg}
-                    </li>)) 
+                <div className="errors">
+                    {
+                        formErrors.length > 0 ?
+                        (
                     
-                    ): <></>
-                }
-            </div>
-
-            <div className="success">
-                {
-                    formSuccess.length > 0 ? (
-                        formSuccess.map((success, key) => (
-                            <li className="formSuccess" key={key}>
-                                <AiFillCheckCircle />
-                                {success.msg}
-                            </li>
-                        )) 
-                    ) : <></>
-                }
-            </div>
-
-            <div>
-                <label htmlFor="fullName">
-                    Full Name:
-                        <input type="text" name="fullName" value={signupForm.fullName} onChange={updateForm} required={true} />
-                </label>
-
-                <label htmlFor="email">
-                    Email:
-                        <input type="email" name="email" value={signupForm.email} onChange={updateForm} required={true} />
-                </label>
-
-                <label htmlFor="password">
-                    Password:
-                        <input type="password" name="password" value={signupForm.password} onChange={updateForm} required={true} minLength={6}/>
-
+                        formErrors.map((err, key) => (<li className="formErr" key={key}>
+                            <MdError />
+                            {err.param} {err.msg}
+                        </li>)) 
                         
-                            {!strongPass.passed ?
-                                <>
-                                   <p>
-                                    Password must contain
-                                   </p>
-                                   <ul>
-                                       
-                                        {
-                                            strongPass.required.map((string, key) => (
-                                                <li key={key}>{string}</li>
-                                            ))
-                                        }
-                                    </ul> 
-                                </> :
-                                <>Strong password <TiTick /></>
-                            }
-                        
-                </label>
+                        ): <></>
+                    }
+                </div>
 
-                <label htmlFor="retypePassword">
-                    Retype password:
-                        <input type="password" name="retypePassword" value={signupForm.retypePassword} onChange={updateForm}  />
-                </label>
-            </div>
-            <button>Sign up</button>
-            <p>
-                Already have an account?
-                <Link to="/auth/signin">
-                    Sign in here
-                </Link>
-            </p>
-            
-        </form>
+                <div className="success">
+                    {
+                        formSuccess.length > 0 ? (
+                            formSuccess.map((success, key) => (
+                                <li className="formSuccess" key={key}>
+                                    <AiFillCheckCircle />
+                                    {success.msg}
+                                </li>
+                            )) 
+                        ) : <></>
+                    }
+                </div>
 
-        <div className="authImg">
-            <img src={SignUpImg} alt="sign up" />
+                <div>
+                    <label htmlFor="fullName">
+                        Full Name:
+                            <input type="text" name="fullName" value={signupForm.fullName} onChange={updateForm} required={true} />
+                    </label>
+
+                    <label htmlFor="email">
+                        Email:
+                            <input type="email" name="email" value={signupForm.email} onChange={updateForm} required={true} />
+                    </label>
+
+                    <label htmlFor="password">
+                        Password:
+                            <input type="password" name="password" value={signupForm.password} onChange={updateForm} required={true} minLength={6}/>
+
+                            
+                                {!strongPass.passed ?
+                                    <>
+                                    <p>
+                                        Password must contain
+                                    </p>
+                                    <ul>
+                                        
+                                            {
+                                                strongPass.required.map((string, key) => (
+                                                    <li key={key}>{string}</li>
+                                                ))
+                                            }
+                                        </ul> 
+                                    </> :
+                                    <>Strong password <TiTick /></>
+                                }
+                            
+                    </label>
+
+                    <label htmlFor="retypePassword">
+                        Retype password:
+                            <input type="password" name="retypePassword" value={signupForm.retypePassword} onChange={updateForm}  />
+                    </label>
+                </div>
+                <button className="authBtn">
+                    <FaUserAlt /> &nbsp;
+                    Sign up
+                </button>
+                
+                
+            </form>     
         </div>
-    </div>
+        <Footer />  
+    </>
     );
 }
 const Signup = props => {

@@ -93,9 +93,7 @@ class TransactionService /*: implements ITransactionService */ {
     
     createTransaction = async (AccountId/*: ObjectId */, transaction /*: Transaction */ ) => {
         try{
-            console.log("---------------------------------------------")
-            console.log({transaction})
-            console.log("---------------------------------------------")
+            
             const {amount, desc, status, currency, investmentId} = transaction /*: Object<string, object> */;
             
             const newTransaction = new Transaction({ acctId: AccountId, amount, desc, status, currency, investmentId });
@@ -162,7 +160,7 @@ class TransactionService /*: implements ITransactionService */ {
                 transactionObject.availableForWithdrawal = availableForWithdrawal;
                 acctTransactions.push(transactionObject);
             }
-
+            acctTransactions.reverse();
             return acctTransactions;
 
         } catch(err){
@@ -180,6 +178,7 @@ class TransactionService /*: implements ITransactionService */ {
     {
         try{
             const transactions /*: List<TransactionModel> */= await Transaction.where({acctId, status});
+            transactions.reverse();
             return transactions;
 
         } catch(err){
@@ -209,10 +208,10 @@ class TransactionService /*: implements ITransactionService */ {
     /**
      * 
      * @param {TransactionModelPatch {status?: string, ...}} transactionQuery 
-     * @returns {List<TransactionModel>}
+     * @returns {Promise<List<TransactionModel>>}
      */
     retrieveTransactions = async (transactionQuery /**: TransactionModelPatch  */) /**: Array<TransactionModel> */ => {
-        return await Transaction.where(transactionQuery).populate("investmentId").populate("acctId");
+        return (await Transaction.where(transactionQuery).populate("investmentId").populate("acctId")).reverse();
     }
     /**
      * 

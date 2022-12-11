@@ -37,49 +37,46 @@ const bgStyle /**Object<String, String> */= {
     
 }
 /**
- * @route /auth/signin?next=string
+ * @route /auth/forgotpassword
  * @param {*} props 
  * @returns 
  */
-function SignInForm(props){
+function ForgotPasswordForm(props){
     const [params] /*: Object ({}) */= useSearchParams();
     const navigate /*: NavigateObject  */ = useNavigate();
 
-    const [signinForm, setSigninForm]  = useState({
-        email : "",
-        password: ""
+    const [forgotPasswordForm, setForgotPasswordForm]  = useState({
+        email : ""
     });
+    const [mailResponse /** String */, setMailResponse /** Funct<T, T> */]  = useState("");
     // Global User state
     const setGlobalUser = useSetRecoilState(UserState);
 
     function updateForm(e){
-        setSigninForm(prevData => ({...prevData, [e.target.name]: e.target.value}))        
+        setForgotPasswordForm(prevData => ({...prevData, [e.target.name]: e.target.value}))        
     }
     async function signupUser(e){
         e.preventDefault();
         // Verify email and password is present
-        if(!signinForm.email.trim() || !signinForm.password.trim()){
-            alert("Please, input email and password");
+        if(!forgotPasswordForm.email.trim()){
+            alert("Please, input email");
             return
         }
-        const signInReq  = await fetch("/auth/signin", {
+        const forgotPasswordReq  = await fetch("/auth/forgotpassword", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify(signinForm)
+            body: JSON.stringify(forgotPasswordForm)
         });
-        if(signInReq.ok){
+        if(forgotPasswordReq.ok){
             // Get data 
-            const signInRes = await signInReq.json()
-            setGlobalUser(prevUser => signInRes);
+            const forgotPasswordResponse /** {sent : boolean } */ = await forgotPasswordReq.json()
 
-            // If a next parameter is provided, navigate to next(default /acct/home)
-            // const navigateTo = params.next || "/acct/home";
-            const navigateTo = params.get("next")|| "/acct/home";
-            navigate(navigateTo);
+            const mailResp /** String */ = "An email has been sent to reset password"
+            setMailResponse(mailResp);
+            setForgotPasswordForm(prevData => ({...prevData, email: ""}));
         } else{
-            alert("There was an error verifying user. Please try again.")
         }
     }
     return (
@@ -87,56 +84,36 @@ function SignInForm(props){
     <div className="auth" style={bgStyle}>
         <form className="form" onSubmit={signupUser}>
             <div>
-                <h2>Sign in with email</h2>
+                <h2>Forgot Password</h2>
                 <div className="authImgDiv">
                     {/* <img src={auth} /> */}
                 </div>
                 <p>
-                    Don't have an account?
-                    <Link to="/auth/signup" className="authAnchor">
-                        Sign up here
+                    Remember your password?
+                    <Link to="/auth/signin" className="authAnchor">
+                        Sign in
                     </Link>
                 </p>
                 <br />
                 <label htmlFor="email">
-                    Email: 
-                    <input  type="email" required={true} name="email" value={signinForm.email} 
+                    EMAIL ADDRESS: 
+                    <input  type="email" required={true} name="email" value={forgotPasswordForm.email} 
                     minLength={1}
                     onChange={updateForm}
                     />
                 </label>
 
-                <label htmlFor="password">
-                    Password: 
-                    <input type="password" required={true} minLength={5}
-                    name="password"
-                    value={signinForm.password} onChange={updateForm}
-                    />
-                </label>
-                <label htmlFor="signedin">
-                <input type="checkbox" checked={true} />
-                Keep me signed in
-                </label>
+                
 
             </div>
+            <p>{mailResponse}</p>
             <br />
-
             <button type="submit" className="authBtn">
                 <FaUserAlt /> &nbsp;
-                Sign in
+                Continue
             </button>
-            <br /><br />
-            <p>
-                <Link to="/auth/forgotpassword" className="authAnchor" >
-                    Forgot password?
-                </Link>
-                
-            </p>
+            
         </form>
-
-        {/* <div className="authImg">
-            <img src={SignInImg} alt="sign in" />
-        </div> */}
     </div>
         <Footer />
     </>
@@ -144,13 +121,13 @@ function SignInForm(props){
 }
 
 
-const Signin = props => {
+const ForgotPassword = props => {
     return (
         <>
             <NavigationBar active='signin'/>
-            <SignInForm />
+            <ForgotPasswordForm />
         </>
     );
 }
 
-export default Signin;
+export default ForgotPassword;

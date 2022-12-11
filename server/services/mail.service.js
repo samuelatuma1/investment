@@ -44,13 +44,20 @@ class Mail{
             }
         })
     }
+
+    /**
+     * 
+     * @param {Email} to 
+     * @param {String} subject 
+     * @param {HTML} html 
+     * @returns {SMTPTransport.SentMessageInfo}
+     */
     sendMail = async (to, subject, html) => {
         try{
             const transporter = this.createTransport()
             const mailRequest = await transporter.sendMail({from: this.email_username, to, subject, html})
             console.log(mailRequest)
             return mailRequest
-
         } catch(err){
             return {error: "An error occured while sending mail"+ `Mail to ${to} not sent`}
         }
@@ -68,8 +75,8 @@ class Mail{
                 + "/auth/verifyMail" + "/" + signedToken
         
             const verificationMail = `
-                <html>
-                    <body style="font-family: verdana sans-serif;">
+                
+                    <div style="font-family: verdana sans-serif;">
                         <h3>Hello ${fullName}</h3>
                         <p>Please confirm your email by clicking the button below.</p>
 
@@ -79,9 +86,8 @@ class Mail{
                                 text-decoration: none;">Verify</a>
                             </button>
                         <p>Didn't sign up for our mail, Please email us at ...</p>
-                    </body>
-                </html>`    
-
+                    </div>
+                `    
                 const sendMail = await this.sendMail(to, "Verify Email", verificationMail)
                 return sendMail
         } catch(err){

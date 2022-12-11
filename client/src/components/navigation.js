@@ -87,7 +87,10 @@ export default function NavigationBar(props){
         <nav ref={navBar}>
             <section className="home">
             <li>
-                <AiFillHome />
+                
+                <Link to="/" className="navAnchor">
+                    <AiFillHome />
+                </Link>
             </li>
             <i onClick={toggleDisplay}>
                 <FaHamburger />
@@ -96,7 +99,11 @@ export default function NavigationBar(props){
             
             <ul className="toggleDisplay hide" ref={toggleNavRef}>
             <section className='mainNav'>
-                <li>Upload House</li>
+                <li>
+                    <Link to="/" className="navAnchor home">
+                        Home
+                    </Link>
+                </li>
                 <li >
                     <Link to="/acct/home" className="navAnchor UserAccountHomePage">
                         Account 
