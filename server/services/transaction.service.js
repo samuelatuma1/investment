@@ -70,9 +70,9 @@ class TransactionService /*: implements ITransactionService */ {
         .reduce((transSum /*: number */, currTransaction /*: Transaction */) =>
         transSum + currTransaction.amount, 0);
         
-        console.log({userTransactionsBal})
+        // console.log({userTransactionsBal})
         const balAfterCurrTransaction /*: number */ = userTransactionsBal + transaction.amount;
-        console.log({balAfterCurrTransaction})
+        // console.log({balAfterCurrTransaction})
         if(balAfterCurrTransaction <= 0){
             return false;
         }
@@ -104,7 +104,7 @@ class TransactionService /*: implements ITransactionService */ {
             }
             return await newTransaction.save();
         } catch(err){
-            console.log(err);
+            // console.log(err);
             throw new Error(err.message);
         }
     }
@@ -164,7 +164,7 @@ class TransactionService /*: implements ITransactionService */ {
             return acctTransactions;
 
         } catch(err){
-            console.log(err);
+            // console.log(err);
             throw new Error(err.message);
         }
     }
@@ -182,7 +182,7 @@ class TransactionService /*: implements ITransactionService */ {
             return transactions;
 
         } catch(err){
-            console.log(err);
+            // console.log(err);
             throw new Error(err.message);
         }
     }

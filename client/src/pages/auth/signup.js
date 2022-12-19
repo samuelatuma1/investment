@@ -15,7 +15,7 @@ import {
 } from "react-router-dom";
 
 // Hooks
-import {useEffect, useState} from "react";
+import {useEffect, useState, useRef} from "react";
 
 // Components
 import NavigationBar from "../../components/navigation";
@@ -97,6 +97,9 @@ const SignUpForm = (props) => {
     
     const [formErrors, setFormErrors] = useState([])
     const [formSuccess, setFormSuccess] = useState([])
+
+    // ref
+    const signUpBnRef /** Ref */ = useRef(null);
     useEffect(() => {
         setStrongPass(strongPassword(signupForm.password));
     }, [signupForm.password])
@@ -109,6 +112,7 @@ const SignUpForm = (props) => {
 
     async function submitForm(e){
         e.preventDefault();
+        signUpBnRef.current.disabled = true; // disable sign up button, so it can't be clicked for the time being
         const formDetails = searchForEmpties(signupForm)
         if(!formDetails){
             alert("Please fill out all fields");
@@ -143,6 +147,7 @@ const SignUpForm = (props) => {
             }
             // What to do if all goes well
             setFormSuccess([{msg: `Sign up successful. A verification mail has been sent to ${signupForm.email}`}]);
+            
         } else{
             if(signUpReq.status === 400){
                 setFormErrors([{"msg": `Email Verification Failed. Please try again`}])
@@ -152,6 +157,7 @@ const SignUpForm = (props) => {
                 setFormErrors([{"msg": `${signupForm.email} already in use. Please try a different email address.`}])
                 return 
             }
+            signUpBnRef.current.disabled = false;
         }
 
     }
@@ -239,7 +245,7 @@ const SignUpForm = (props) => {
                             <input type="password" name="retypePassword" value={signupForm.retypePassword} onChange={updateForm}  />
                     </label>
                 </div>
-                <button className="authBtn">
+                <button className="authBtn" ref={signUpBnRef}>
                     <FaUserAlt /> &nbsp;
                     Sign up
                 </button>

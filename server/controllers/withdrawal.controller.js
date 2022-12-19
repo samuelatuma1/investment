@@ -64,7 +64,7 @@ class WithdrawalController{
             const userAcct /*: AccountModel */ = await this.accountService.retrieveAccount(userId);
 
             if(userAcct == null){
-                console.log("UserAcct is null")
+                // console.log("UserAcct is null")
                 return res.status(403).json({error: "No user account for user"})
             }
 
@@ -76,14 +76,14 @@ class WithdrawalController{
             const withdrawalData /**WithdrawalModel */= {
                 acctId, userId, amount, currency
             }
-            console.log({withdrawableTransactions});
+            // console.log({withdrawableTransactions});
             const withdraw /**: WithdrawModel */= await this.withdrawalService.withdraw(withdrawalData, withdrawableTransactions);
             if(withdraw !== null){
                 return res.status(201).json({withdrawal: withdraw, created: true});
             }
             return res.status(200).json({created: false});
         } catch(err /**Error */){
-            console.log(err)
+            // console.log(err)
             return res.status(500).json({error: err.message})
         }
     }
@@ -124,7 +124,7 @@ class WithdrawalController{
         }
 
         catch(err /**Error */){
-            console.log(err)
+            // console.log(err)
             return res.status(500).json({error: err.message})
         }
     }
@@ -151,7 +151,7 @@ class WithdrawalController{
             return res.status(200).json(allwithdrawals);
         } 
         catch (err /**Exception */){
-            console.log(err)
+            // console.log(err)
             return res.status(500).json({error: err.message})
         }
     }
@@ -193,17 +193,17 @@ class WithdrawalController{
             // send mail
             const  {to /**string */, subject /**string */, html /**string */} = req.body.mail;
                 if(!to || !subject || !html){
-                    console.log("Some params missing");
+                    // console.log("Some params missing");
                     return res.status(400).json({updated: false});
                 }
             if (html !== "..."){
-                console.log("mail sent");
+                // console.log("mail sent");
                 this.mailService.sendMail(to, subject, html);
             }            
             return res.status(200).json(withdrawalUpdateResponse);
         }
         catch(err /**Error */){
-            console.log(err);
+            // console.log(err);
             return res.status(500).json({error: err.message});
         }
      }

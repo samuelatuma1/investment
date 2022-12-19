@@ -41,7 +41,7 @@ class InvestmentController {
             // Ensure Uploader is admin
             const userId /*: ObjectId */ = req.userId;
             const userIsAdmin /*: boolean */= await this.authService.verifyIsAdminFromId(userId);
-            console.log({userIsAdmin})
+            // console.log({userIsAdmin})
             if(!userIsAdmin)
                 return res.status(403).json({"error": `User with id => ${userId} not authorized to create investment `});
             
@@ -121,7 +121,7 @@ class InvestmentController {
             // Ensure Update is by admin
             const userId /*: ObjectId */ = req.userId;
             const userIsAdmin /*: boolean */= await this.authService.verifyIsAdminFromId(userId);
-            console.log({userIsAdmin})
+            // console.log({userIsAdmin})
             if(!userIsAdmin)
                 return res.status(403).json({"error": `User with id => ${userId} not authorized to create investment `});
             const investmentId /**: ObjectId */ = params.investmentId;
@@ -156,7 +156,7 @@ class InvestmentController {
             // Ensure Delete is by admin
             const userId /*: ObjectId */ = req.userId;
             const userIsAdmin /*: boolean */= await this.authService.verifyIsAdminFromId(userId);
-            console.log({userIsAdmin})
+            // console.log({userIsAdmin})
             if(!userIsAdmin)
                 return res.status(403).json({"error": `User with id => ${userId} not authorized to create investment `});
 

@@ -225,7 +225,7 @@ class AuthService{
        
         try{
             const _id /*: ObjectId */ = userId;
-            console.log({_id})
+            // console.log({_id})
             const user /*: User */ = await User.findById(_id);
             if(user != null){
                 return user.isAdmin;

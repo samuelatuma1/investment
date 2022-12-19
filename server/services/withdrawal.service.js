@@ -158,14 +158,14 @@ class WithdrawalService {
         
         const requestedWithdrawal /**number  */ = withdrawal.amount;
 
-        console.log({requestedWithdrawal, amtWithdrawable});
+        // console.log({requestedWithdrawal, amtWithdrawable});
         if(requestedWithdrawal < amtWithdrawable){
             const withdrawalModel /**Withdrawal */= new Withdrawal(withdrawal); 
             return await withdrawalModel.save();
         }
         return null;
         } catch(err /**Error */){
-            console.log("err =>", err);
+            // console.log("err =>", err);
             return null;
         }
         
@@ -242,7 +242,7 @@ class WithdrawalService {
 
         // Group transactions by currency
         const groupTransactionsByCurrency /**{[key: String]: Array<Transaction>} */= this.#groupTransactionsByCurrency(withdrawableTransactions);
-        console.log(groupTransactionsByCurrency);
+        // console.log(groupTransactionsByCurrency);
 
         // retrieve availableWithrawableBalance and pendingWithdrawableBalance 
         const currencyWithdrawableDetails /**{[key: String]: {[Key: String]: number}} */ = {};
@@ -281,7 +281,7 @@ class WithdrawalService {
             updateWithdrawalResponse[updatedField] = updatedDTO[updatedField];
         }
 
-        console.log("UPDATED WITHDRAWAL => ", updateWithdrawalResponse);
+        // console.log("UPDATED WITHDRAWAL => ", updateWithdrawalResponse);
         return updateWithdrawalResponse;
     }
 

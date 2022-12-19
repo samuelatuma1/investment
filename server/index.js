@@ -1,3 +1,4 @@
+const path /**Node:Path */= require("path");
 const express = require("express")
 const helmet = require("helmet")
 const cors = require("cors")
@@ -8,12 +9,14 @@ require("dotenv").config()
 const app = express()
 
 // Security Setup
-app.use(helmet());
+app.use(helmet.contentSecurityPolicy({
+    useDefaults: true,
+    directives: {
+      "img-src": ["'self'", "https: data:"]
+    }
+  }));
 
-// app.use(helmet({
-//     crossOriginResourcePolicy: false,
-//     policy: "cross-origin"
-//   }))
+
 
 
 // access cookies
@@ -25,7 +28,7 @@ app.use(express.json())
 
 // Use cors to allow react
 const corsOptions = {
-    origin: 'http://localhost:3000',
+    origin: '*',
     methods: ['GET', "POST", "PUT", "DELETE"],
     credentials: true
 }
@@ -76,4 +79,12 @@ app.delete("/product", async (request /**Request */, res /**Response */ ) /**Res
 
 // static files
 app.use("/media", express.static("media"))
+
+// Front end React hosted as view
+app.use(express.static(path.join(__dirname, 'build')));
+// Front end all paths redirect here
+app.get('/*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
+
 module.exports = {app}

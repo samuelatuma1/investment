@@ -56,7 +56,7 @@ class Mail{
         try{
             const transporter = this.createTransport()
             const mailRequest = await transporter.sendMail({from: this.email_username, to, subject, html})
-            console.log(mailRequest)
+            // console.log(mailRequest)
             return mailRequest
         } catch(err){
             return {error: "An error occured while sending mail"+ `Mail to ${to} not sent`}
@@ -75,7 +75,6 @@ class Mail{
                 + "/auth/verifyMail" + "/" + signedToken
         
             const verificationMail = `
-                
                     <div style="font-family: verdana sans-serif;">
                         <h3>Hello ${fullName}</h3>
                         <p>Please confirm your email by clicking the button below.</p>

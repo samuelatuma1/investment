@@ -23,7 +23,7 @@ class AccountController {
         }
         catch (err){
             const errMsg = err.message
-            console.log(err);
+            // console.log(err);
             return res.status(500).json({"error": errMsg});
         }
     }
@@ -41,7 +41,7 @@ class AccountController {
             return res.status(200).json({userAccts});
         } catch(err){
             const error =  err.message;
-            console.log(err)
+            // console.log(err)
             return res.status(500).json({error});
         }
     }
@@ -60,7 +60,7 @@ class AccountController {
             return res.status(200).json({userAcct});
         } catch(err){
             const error =  err.message;
-            console.log(err);
+            // console.log(err);
             return res.status(500).json({error});
         }
     }
@@ -84,7 +84,7 @@ class AccountController {
 
         } catch(err){
             const error = err.message;
-            console.log(err);
+            // console.log(err);
             return res.status(500).json({error});
         }
     }
@@ -113,7 +113,7 @@ class AccountController {
             return res.status(201).json(newTransaction);
         } catch(err){
             const error = err.message;
-            console.log(err);
+            // console.log(err);
             return res.status(500).json({error});
         }
     }

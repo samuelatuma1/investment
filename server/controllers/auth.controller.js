@@ -36,13 +36,13 @@ class Auth{
             if(formErrors.length > 0){
                 return res.status(200).json({formErrors})
             }
-            console.log("res.body", req.body)
+            // console.log("res.body", req.body)
             const savedUser = await this.authService.saveUser(req)
 
             //  Create account for user in the process of creating user
             const _id = savedUser._id;
             const userTransactionAcct = await this.accountService.createAccount(_id);
-            console.log({userTransactionAcct});
+            // console.log({userTransactionAcct});
 
             // Send Verification Mail
             let verificationMail;
@@ -50,13 +50,13 @@ class Auth{
                 verificationMail = await this.mailService.sendVerificationMail(req, savedUser)
             } catch(err){
                 const removedMail = await this.authService.deleteOne({email: req.body.email})
-                    console.log({removedMail})
+                    // console.log({removedMail})
                     return res.sendStatus(400)
             }
             
             res.status(201).json({savedUser: savedUser.toObject()})
         } catch(err){
-            console.log(err)
+            // console.log(err)
             return res.status(403).json({error: "user with email already exists"})
         }
     }
@@ -75,9 +75,10 @@ class Auth{
 
             
 
-            return res.status(200).json({validatedUser})
+            // return res.status(200).json({validatedUser})
+            return res.redirect("/auth/signin") 
         } catch(err){
-            console.log(err)
+            // console.log(err)
             return res.status(403).json({error: "Token invalid or does not exist"})
         }
     }
@@ -104,17 +105,17 @@ class Auth{
             if(!user){
                 return res.status(400).json({"error": "username or password invalid"})
             }
-            console.log(user)
+            // console.log(user)
             if(!user.isActive){
                 return res.status(403).json({error: "account not activated"})
             }
             // User is valid, with signed token in key -> token
             res.cookie("token", user.token)
-            console.log("cookies", req.cookies)
+            // console.log("cookies", req.cookies)
             const {_id /*: BsonObject */, fullName /*: String */} = user
             return res.status(200).json({email, _id, fullName, token: user.token})
         } catch(err){
-            console.log(err)
+            // console.log(err)
             return res.status(400).json({error: "Authentication failed"})
         } 
     }
@@ -134,7 +135,7 @@ class Auth{
             const isSignedIn /*: boolean */ = await this.authService.userIsSignedIn(token);
             return res.status(200).json({isSignedIn});
         } catch(err){
-            console.log(err.message);
+            // console.log(err.message);
             return res.status(200).json({isSignedIn: false});
         }
     }
@@ -152,7 +153,7 @@ class Auth{
             const isAdmin /*: boolean */ = await this.authService.userIsAdmin(token);
             return res.status(200).json({isAdmin});
         } catch(err){
-            console.log(err.message);
+            // console.log(err.message);
             return res.status(200).json({isAdmin: false});
         }
     }
@@ -192,13 +193,13 @@ class Auth{
                 `
                 this.mailService.sendMail(email, "Password reset", divToUpdatePassword);
                 sent = true;
-                console.log({verificationUrl});
+                // console.log({verificationUrl});
             }
 
             return res.status(200).json({sent});
         }
         catch(err /** Exception */){
-            console.log(err.message);
+            // console.log(err.message);
             return res.status(200).json({error: err.message});
         }
 
@@ -209,7 +210,7 @@ class Auth{
      * @desc resets password for forgotten password
      * @METHOD PUT /auth/updatepassword/{token}
      * @param {body : {newPassword: String, confirmPassword: String}} req 
-     * @returns {Response<{sent: boolean}>}
+     * @returns {Promise<Response<{sent: boolean}>>}
      */
     updatePassword = async (req /*: Request */, res /*: Response */) /*:*/ => {
         try{
@@ -227,7 +228,7 @@ class Auth{
                 return res.status(200).json({email: updatedPassword.email});
             }
         } catch(err /** Exception */){
-            console.log(err.message);
+            // console.log(err.message);
             return res.status(200).json({error: err.message});
         }
     }

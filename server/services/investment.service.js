@@ -58,7 +58,7 @@ class InvestmentService extends IInvestmentService{
          const searchData /**: Object */ = {amount, yieldValue, 
                         waitPeriod, currency: currency || "dollars"}
         const acctExists = await Investment.findOne(searchData);
-        console.log({acctExists})
+        // console.log({acctExists})
         if(acctExists){
             if(acctExists.deleted){
                 await Investment.findOneAndUpdate(searchData, {deleted: false});

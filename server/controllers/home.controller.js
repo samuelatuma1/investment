@@ -128,10 +128,10 @@ class HomeController {
                 return res.status(403).json({error: "Please, include a valid image"});
             }
             const intro /**Intro */ = await this.introService.createIntro( {heading, body, adminWhatsappNum}, fileData, req);
-            console.log("This is the intro", intro);
+            // console.log("This is the intro", intro);
             return res.status(201).json({intro});
         } catch(ex /**Message */){
-            console.log(ex);
+            // console.log(ex);
             return res.status(400).json({error: ex.message});
         }
     }
@@ -155,14 +155,14 @@ class HomeController {
             
             
             const stats /**Stats */ = req.body;
-            console.log(stats)
+            // console.log(stats)
             if(!stats.stats1 || !stats.stats2 || !stats.stats3 || !stats.stats4){
                 return res.status(400).json({stats, error: "Some data missing"})
             }
             const savedStats = await this.statsService.saveOne(stats);
             return res.status(201).json({savedStats});
         }catch(ex /** Exception */){
-            console.log(ex);
+            // console.log(ex);
             return res.status(400).json({error: ex.message});
         }
     }
@@ -178,7 +178,7 @@ class HomeController {
             const stats /**Stats */ = await this.statsService.get();
             return res.status(200).json({stats});
         }catch(ex /**Message */){
-            console.log(ex);
+            // console.log(ex);
             return res.status(400).json({error: ex.message});
         }
     }
@@ -250,7 +250,7 @@ class HomeController {
             // Ensure user is admin
             const userId /**ObjectId */ = req.userId;
             const isAdmin /*boolean*/ = await this.authService.verifyIsAdminFromId(userId);
-            console.log({isAdmin});
+            // console.log({isAdmin});
             if(!isAdmin)
                 return res.status(403).json({message: "You are not permitted to upload image"});
 
@@ -263,7 +263,7 @@ class HomeController {
             const howToEarnImage /**HowToEarnImage */ = await this.howToEarnService.getHowToEarnImage(req);
             return res.status(201).json({howToEarnImage});
         } catch(ex /**Message */){
-            console.log(ex);
+            // console.log(ex);
             return res.status(400).json({error: ex.message});
         }
      }
@@ -278,7 +278,7 @@ class HomeController {
             const  image = await this.howToEarnService.getHowToEarnImage(req);
             return res.status(200).json({howToEarnImage: image});
         } catch(ex /**Message */){
-            console.log(ex);
+            // console.log(ex);
             return res.status(400).json({error: ex.message});
         }
      }
@@ -315,7 +315,7 @@ class HomeController {
 
             return res.status(201).json({howToEarn})
         } catch(ex /**Message */){
-            console.log(ex);
+            // console.log(ex);
             return res.status(400).json({error: ex.message});
         }
 
@@ -332,7 +332,7 @@ class HomeController {
             const howToEarn /** HowToEarn */ = await this.howToEarnService.getHowToEarn()
             return res.status(200).json({howToEarn});
         } catch(ex /**Message */){
-            console.log(ex);
+            // console.log(ex);
             return res.status(400).json({error: ex.message});
         }
 
@@ -350,7 +350,7 @@ class HomeController {
 
             return res.status(200).json({howToEarn, howToEarnImage});
         } catch(ex /**Exception */){
-            console.log(ex);
+            // console.log(ex);
             return res.status(400).json({error: ex.message});
         }
      }
@@ -381,7 +381,7 @@ class HomeController {
             const savedReview /**Review */= await this.reviewService.addReviews(reviews);
             return res.status(201).json({review: savedReview});
         } catch( ex /** Exception */){
-            console.log(ex);
+            // console.log(ex);
             return res.status(400).json({error: ex.message});
         }
      }
@@ -396,7 +396,7 @@ class HomeController {
             const review /** Review */ = await this.reviewService.getReviews();
             return res.status(200).json(review);
         } catch( ex /**Exception */){
-            console.log(ex);
+            // console.log(ex);
             return res.status(400).json({error: ex.message});
         }
       } 
@@ -434,7 +434,7 @@ class HomeController {
                 return res.status(201).json({footer: createdFooter});
              }  
              catch( ex /**Exception */){
-                console.log(ex);
+                // console.log(ex);
                 return res.status(400).json({error: ex.message});
             }
 
@@ -450,7 +450,7 @@ class HomeController {
                 const footer /**Footer */ = await this.footerService.getFooter();
                 return res.status(200).json({footer});
             } catch( ex /**Exception */){
-                console.log(ex);
+                // console.log(ex);
                 return res.status(400).json({error: ex.message});
             }
       }

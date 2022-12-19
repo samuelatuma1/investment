@@ -303,7 +303,9 @@ const Investments /**Component */ = (props /** {[key: String]: any} */)/** JSX *
         setLoading(false);
         if(req.ok){
            const investments /**Array<Investment> */ = await req.json();
-           setInvestments(investments);
+           if(investments){
+            setInvestments(investments);
+           }
         }
     }
 

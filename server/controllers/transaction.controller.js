@@ -74,7 +74,7 @@ class TransactionController{
             }
             return res.status(403).json({error: "Transaction Error: No Account for user"});
         } catch(err) {
-            console.log(err)
+            // console.log(err)
             return res.status(500).json({error: err.message})
         }
     }
@@ -97,7 +97,7 @@ class TransactionController{
                 return res.status(200).json({acctTransactions});
             }
         } catch(err){
-            console.log(err.message);
+            // console.log(err.message);
             return res.status(500).json({error: err.message});
         }
     }
@@ -138,7 +138,7 @@ class TransactionController{
             // Send email
             const  {to /**string */, subject /**string */, html /**string */} = req.body.mail;
             if(!to || !subject || !html){
-                console.log("Some params missing");
+                // console.log("Some params missing");
                 return res.status(400).json({updated: false});
             }
             this.mailService.sendMail(to, subject, html);
@@ -152,7 +152,7 @@ class TransactionController{
             
         }
         catch(err /**:Exception */){
-            console.log(err)
+            // console.log(err)
             return res.status(500).json({error: err.message})
         }
 
@@ -184,15 +184,17 @@ class TransactionController{
                 const transactionObject /**TransactionModel */ = transaction.toObject();
                 const userId/**ObjectId */ = transactionObject.acctId.acctHolderId;
                 const user /** User */ = await this.authService.retrieveUserById(userId);
-                transactionObject['user'] = user.toObject();
-                transactions.push(transactionObject);
+                if(user !== null){
+                    transactionObject['user'] = user.toObject();
+                    transactions.push(transactionObject);
+                }
             }
             
             return res.status(200).json(transactions);
 
 
         } catch(err /**Exception */){
-            console.log(err)
+            // console.log(err)
             return res.status(500).json({error: err.message})
         }
     }
