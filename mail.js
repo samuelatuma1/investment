@@ -42,6 +42,7 @@ class Mail{
             const mailRequest = await transporter.sendMail({from, to, subject, html})
             console.log({mailRequest})
         } catch(err){
+            console.log(err);
             return {error: "An error occured while sending mail"+ `Mail to ${to} not sent`}
         }
     }
