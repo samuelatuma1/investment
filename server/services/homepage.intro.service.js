@@ -81,7 +81,7 @@ class IntroService {
         const savedIntro /**Intro */ = await saveIntro.save();
 
         const result /**Intro */ = await this.getIntro(req);
-        console.log({result});
+        // console.log({result});
         return result;
         
     }

@@ -91,7 +91,7 @@ class HowToEarnService{
      * @returns {Promise<HowToEarn>}
      */
     createHowToEarn = async (howToEarnDTO /** HowToEarnDTO */) /**HowToEarnDTO */=> {
-        console.log("Hey")
+        // console.log("Hey")
         const stepsExist /**HowToEarn*/ = await HowToEarn.findOne();
         if(stepsExist){
             await HowToEarn.deleteMany();
